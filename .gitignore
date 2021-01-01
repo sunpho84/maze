@@ -10,3 +10,5 @@ build*
 /config/config.sub
 /config/config.guess
 /config/compile
+/compile_commands.json
+/Makefile

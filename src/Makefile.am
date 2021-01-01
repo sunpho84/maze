@@ -11,4 +11,6 @@ $(top_srcdir)/.git/index:
 
 BUILT_SOURCES+=%D%/git_info.hpp
 
-#include $(top_srcdir)/src/threads/Makefile.am
+include $(top_srcdir)/src/base/Makefile.am
+
+

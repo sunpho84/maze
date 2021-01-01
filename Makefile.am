@@ -16,7 +16,7 @@ assembly_reports=
 	$(CXXCOMPILE) -S $< -c -o -|$(top_srcdir)/config/asm_inspect.sh $@
 
 include $(top_srcdir)/src/Makefile.am
-include $(top_srcdir)/bin/Makefile.am
+include $(top_srcdir)/projects/Makefile.am
 
 #generate assembly report if asked
 if ASSEMBLY_REPORT
