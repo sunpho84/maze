@@ -14,16 +14,16 @@ namespace maze
   /// Example:
   ///
   /// \code
-  /// DEFINE_HAS_MEMBER(ciccio);
+  /// DEFINE_HAS_MEMBER(mace);
   ///
   /// struct fuffa
   /// {
-  ///    int ciccio();
+  ///    int mace();
   /// };
   ///
   /// int main()
   /// {
-  ///   bool has=hasMember_ciccio(fuffa);
+  ///   bool has=hasMember_mace(fuffa);
   ///   return 0;
   /// }
   /// \endcode

@@ -9,6 +9,7 @@
 # include "config.hpp"
 #endif
 
+#include <threads/kernel.hpp>
 #include <threads/pool.hpp>
 
 #endif

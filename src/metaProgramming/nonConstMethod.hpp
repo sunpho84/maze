@@ -31,7 +31,7 @@ namespace maze
   ///Example
   ///
   /// \code
-  // class ciccio
+  // class mace
   /// {
   ///   double e{0};
   ///

@@ -28,10 +28,7 @@
 
 #include <fstream>
 
-// #include <base/preprocessor.hpp>
-// #include <base/logger.hpp>
-// #include <base/metaProgramming.hpp>
-// #include <base/unroll.hpp>
+#include <base/logger.hpp>
 
 namespace maze
 {

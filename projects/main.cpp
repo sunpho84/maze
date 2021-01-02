@@ -12,8 +12,10 @@ struct a
   
 };
 
-PROVIDE_HAS_MEMBER(b);
-
+namespace maze
+{
+  PROVIDE_HAS_MEMBER(b);
+}
 
 
 int main()

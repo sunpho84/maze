@@ -5,7 +5,9 @@
 ///
 /// \brief Include all headers
 
+#include <Debug.hpp>
 #include <MetaProgramming.hpp>
+#include <Threads.hpp>
 
 /// \brief Main namespace for the library
 namespace maze

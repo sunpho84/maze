@@ -6,6 +6,7 @@
 /// \brief Include all headers from metaProgramming directory
 
 #include <metaProgramming/constnessChanger.hpp>
+#include <metaProgramming/feature.hpp>
 #include <metaProgramming/hasMember.hpp>
 #include <metaProgramming/inliner.hpp>
 #include <metaProgramming/nonConstMethod.hpp>
