@@ -1,6 +1,8 @@
 #ifndef _HAS_MEMBER_HPP
 #define _HAS_MEMBER_HPP
 
+#include <type_traits>
+
 /// \file hasMember.hpp
 ///
 /// \brief Provides a check on the presence of a given member

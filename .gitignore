@@ -13,3 +13,6 @@ build*
 /compile_commands.json
 /Makefile
 /src/config.hpp.in~
+/GPATH
+/GRTAGS
+/GTAGS

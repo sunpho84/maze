@@ -24,21 +24,6 @@ namespace maze
   /// \endcode
 #define ENABLE_THIS_TEMPLATE_IF(...)	\
   std::enable_if_t<(__VA_ARGS__),void*> =nullptr
-  
-  
-  /////////////////////////////////////////////////////////////////
-  
-  //to be moved elsewhere
-  
-  /// Introduces the body of a loop
-#if defined USE_CUDA
-# define KERNEL_LAMBDA_BODY(A)			\
-  [=] CUDA_HOST_DEVICE (A) mutable
-#else
-# define KERNEL_LAMBDA_BODY(A)			\
-  [&] (A) __attribute__((always_inline))
-#endif
-  
 }
 
 #endif
