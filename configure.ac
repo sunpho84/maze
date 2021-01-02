@@ -164,6 +164,18 @@ case "$with_simd_inst_set" in
       *) AC_MSG_ERROR(["Unkwnown SIMD instruction set ${withval}"])
 esac
 
+#antlr4 path
+AC_ARG_WITH(antlr4,
+	AS_HELP_STRING([--with-antlr4=path],[Path to antlr4 headers]),
+	with_antlr4="${withval}",
+	with_antlr4=/usr/include/antlr4-runtime)
+AC_CHECK_HEADERS(antlr4-runtime.h)
+CPPFLAGS="-I$with_antlr4 $CPPFLAGS"
+if test "$ac_cv_header_antlr4_runtime_h" == "no"
+then
+	AC_MSG_ERROR(["Unable to fine runtime headers for antlr4, please provide an appropriate path"])
+fi
+
 #check that we asked simd type only if available
 if test SIMD_INST_SET != NONE && test "$ac_cv_header_immintrin_h" == ""
 then
@@ -183,7 +195,7 @@ fi
 
 SUMMARY_RESULT="$SUMMARY_RESULT
 simd Inst set       : $with_simd_inst_set"
-AC_MSG_RESULT(with SIMD insttruction set ... ${with_simd_inst_set})
+AC_MSG_RESULT(with SIMD instruction set ... ${with_simd_inst_set})
 AC_DEFINE_UNQUOTED([SIMD_INST_SET],[$SIMD_INST_SET],[Instruction set to be used])
 
 #add some flags which we will have to check again
