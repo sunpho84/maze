@@ -21,6 +21,7 @@ namespace maze
 int main(int narg,char** arg)
 {
   initMaze([](int narg,char** arg){},narg,arg);
+  finalizeMaze();
   
   return 0;
 }
