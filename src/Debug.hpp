@@ -8,7 +8,9 @@
 #include <debug/asmBookmark.hpp>
 #include <debug/crasher.hpp>
 #include <debug/cudaDebug.hpp>
+#include <debug/gdbAttach.hpp>
 #include <debug/timer.hpp>
 #include <debug/typeNamer.hpp>
+#include <debug/versionInfo.hpp>
 
 #endif

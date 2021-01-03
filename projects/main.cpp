@@ -18,9 +18,9 @@ namespace maze
 }
 
 
-int main()
+int main(int narg,char** arg)
 {
-  int i=hasMember_b<a>;
+  initMaze([](int narg,char** arg){},narg,arg);
   
   return 0;
 }

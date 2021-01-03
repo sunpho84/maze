@@ -32,9 +32,6 @@
 
 namespace maze
 {
-  /// Wait to attach gdb
-  EXTERN_DEBUG bool waitToAttachDebuggerFlag;
-  
   /// Write the list of called routines
   void printBacktraceList(std::ofstream&);
   
@@ -86,16 +83,6 @@ namespace maze
   
 /// Invoke the crasher, passing line, file and function
 #define CRASHER Crasher(__LINE__,__FILE__,__FUNCTION__)
-
- 
-  
-  /// Implements the trap to debug
-  void possiblyWaitToAttachDebugger();
-  
-  /// Print version, configuration and compilation time
-  void printVersionAndCompileFlags(std::ofstream& out);
-  
-  
 }
 
 #undef EXTERN_DEBUG
