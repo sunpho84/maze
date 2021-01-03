@@ -9,10 +9,10 @@ namespace maze
 {
   namespace resources
   {
-    /// Compile time, detected when including the ciccio-s.hpp file
+    /// Compile time, detected when including the Maze.hpp file
     extern char PROG_COMPILE_TIME[];
     
-    /// Compile date, detected when including the ciccio-s.hpp file
+    /// Compile date, detected when including the Maze.hpp file
     extern char PROG_COMPILE_DATE[];
   }
   
