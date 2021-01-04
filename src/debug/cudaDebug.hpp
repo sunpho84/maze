@@ -11,10 +11,8 @@
 
 # ifdef USE_CUDA
   
-#  ifdef COMPILING_FOR_DEVICE
-
   /// Put line, file and function in the actual call
-#  define DECRYPT_CUDA_ERROR(...) \
+# define DECRYPT_CUDA_ERROR(...) \
   internalDecryptCudaError(__LINE__,__FILE__,__FUNCTION__,__VA_ARGS__)
   
   /// Crash with a cuda error
@@ -23,8 +21,6 @@
 				const char* function,    ///< Function where the error occurred
 				const cudaError_t rc,    ///< Error code
 				const char *templ,...);  ///< Message template
-
-#  endif
 
 # endif
 
