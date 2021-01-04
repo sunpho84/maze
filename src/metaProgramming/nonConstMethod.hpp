@@ -1,6 +1,10 @@
 #ifndef _NON_CONST_METHOD_HPP
 #define _NON_CONST_METHOD_HPP
 
+#ifdef HAVE_CONFIG_H
+# include "config.hpp"
+#endif
+
 /// \file nonConstMethod.hpp
 ///
 /// \brief Provides non const version of a method

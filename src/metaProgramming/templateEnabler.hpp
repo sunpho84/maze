@@ -1,6 +1,10 @@
 #ifndef _TEMPLATE_ENABLER_HPP
 #define _TEMPLATE_ENABLER_HPP
 
+#ifdef HAVE_CONFIG_H
+# include "config.hpp"
+#endif
+
 /// \file templateEnabler.hpp
 ///
 /// \brief Provides a SFINAE to be used in template par list

@@ -1,6 +1,10 @@
 #ifndef _LOGGER_HPP
 #define _LOGGER_HPP
 
+#ifdef HAVE_CONFIG_H
+# include "config.hpp"
+#endif
+
 /// \file logger.hpp
 ///
 /// \brief Header file for routines to report on the console

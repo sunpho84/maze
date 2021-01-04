@@ -1,6 +1,10 @@
 #ifndef _TIMER_HPP
 #define _TIMER_HPP
 
+#ifdef HAVE_CONFIG_H
+# include "config.hpp"
+#endif
+
 /// \file timer.hpp
 ///
 /// \brief Time between instants

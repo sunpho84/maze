@@ -1,6 +1,10 @@
 #ifndef _VALUE_WITH_EXTREME_HPP
 #define _VALUE_WITH_EXTREME_HPP
 
+#ifdef HAVE_CONFIG_H
+# include "config.hpp"
+#endif
+
 /// \file valueWithExtreme.hpp
 ///
 /// \brief Implements a class with maximum or minimium

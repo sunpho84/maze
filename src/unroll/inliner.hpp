@@ -1,6 +1,10 @@
 #ifndef _INLINER_HPP
 #define _INLINER_HPP
 
+#ifdef HAVE_CONFIG_H
+# include "config.hpp"
+#endif
+
 /// \file inliner.hpp
 ///
 /// \brief Provides attribute to inline functions

@@ -1,6 +1,10 @@
 #ifndef _ASM_BOOKMARK_HPP
 #define _ASM_BOOKMARK_HPP
 
+#ifdef HAVE_CONFIG_H
+# include "config.hpp"
+#endif
+
 /// \file asmBookmark.hpp
 ///
 /// \brief Provides an entry in the assembly to trace a location in the source

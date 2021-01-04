@@ -1,6 +1,10 @@
 #ifndef _KERNEL_HPP
 #define _KERNEL_HPP
 
+#ifdef HAVE_CONFIG_H
+# include "config.hpp"
+#endif
+
 /// \file kernel.hpp
 ///
 /// \brief Provide and dispatch kernels

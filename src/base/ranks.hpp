@@ -1,6 +1,10 @@
 #ifndef _RANKS_HPP
 #define _RANKS_HPP
 
+#ifdef HAVE_CONFIG_H
+# include "config.hpp"
+#endif
+
 /// \file ranks.hpp
 ///
 /// MPI parallelization

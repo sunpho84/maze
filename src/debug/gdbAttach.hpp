@@ -1,6 +1,12 @@
 #ifndef _GDB_ATTACH_HPP
 #define _GDB_ATTACH_HPP
 
+#ifdef HAVE_CONFIG_H
+# include "config.hpp"
+#endif
+
+/// \file gdbAttach.hpp
+
 #include <fstream>
 
 #ifndef EXTERN_GDB_ATTACH

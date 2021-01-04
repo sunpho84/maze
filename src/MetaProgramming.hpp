@@ -1,6 +1,10 @@
 #ifndef _METAPROGRAMMING_HPP
 #define _METAPROGRAMMING_HPP
 
+#ifdef HAVE_CONFIG_H
+# include "config.hpp"
+#endif
+
 /// \file MetaProgramming.hpp
 ///
 /// \brief Include all headers from metaProgramming directory

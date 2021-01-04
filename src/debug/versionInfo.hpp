@@ -1,6 +1,10 @@
 #ifndef _VERSION_INFO_HPP
 #define _VERSION_INFO_HPP
 
+#ifdef HAVE_CONFIG_H
+# include "config.hpp"
+#endif
+
 /// \file versionInfo.hpp
 
 #include <fstream>

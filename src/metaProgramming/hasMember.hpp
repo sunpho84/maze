@@ -1,11 +1,15 @@
 #ifndef _HAS_MEMBER_HPP
 #define _HAS_MEMBER_HPP
 
-#include <type_traits>
+#ifdef HAVE_CONFIG_H
+# include "config.hpp"
+#endif
 
 /// \file hasMember.hpp
 ///
 /// \brief Provides a check on the presence of a given member
+
+#include <type_traits>
 
 namespace maze
 {

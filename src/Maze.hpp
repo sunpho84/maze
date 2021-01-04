@@ -1,6 +1,10 @@
 #ifndef _MAZE_HPP
 #define _MAZE_HPP
 
+#ifdef HAVE_CONFIG_H
+# include "config.hpp"
+#endif
+
 /// \file Maze.hpp
 ///
 /// \brief Include all headers

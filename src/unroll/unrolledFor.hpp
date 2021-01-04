@@ -1,6 +1,10 @@
 #ifndef _UNROLLED_FOR_HPP
 #define _UNROLLED_FOR_HPP
 
+#ifdef HAVE_CONFIG_H
+# include "config.hpp"
+#endif
+
 /// \file unrolledFor.hpp
 ///
 /// \brief Provides functions to unroll loops

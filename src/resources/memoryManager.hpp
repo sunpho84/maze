@@ -1,6 +1,10 @@
 #ifndef _MEMORY_MANAGER_HPP
 #define _MEMORY_MANAGER_HPP
 
+#ifdef HAVE_CONFIG_H
+# include "config.hpp"
+#endif
+
 /// \file memoryManager.hpp
 ///
 /// \brief Main manager for GPU and CPU memory
@@ -14,6 +18,7 @@
 
 #include <base/logger.hpp>
 #include <debug/crasher.hpp>
+#include <debug/cudaDebug.hpp>
 #include <metaProgramming/feature.hpp>
 #include <metaProgramming/nonConstMethod.hpp>
 #include <threads/pool.hpp>

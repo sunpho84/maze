@@ -1,6 +1,10 @@
 #ifndef _FEATURE_HPP
 #define _FEATURE_HPP
 
+#ifdef HAVE_CONFIG_H
+# include "config.hpp"
+#endif
+
 /// \file feature.hpp
 ///
 /// \brief Implements static polymorphism

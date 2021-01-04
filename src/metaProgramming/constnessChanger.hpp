@@ -1,6 +1,10 @@
 #ifndef _CONSTNESS_CHANGER_HPP
 #define _CONSTNESS_CHANGER_HPP
 
+#ifdef HAVE_CONFIG_H
+# include "config.hpp"
+#endif
+
 /// \file constnessChanger.hpp
 ///
 /// \brief Provides several changes in the constness of a quantity

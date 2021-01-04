@@ -1,6 +1,10 @@
 #ifndef _RESOURCES_HPP
 #define _RESOURCES_HPP
 
+#ifdef HAVE_CONFIG_H
+# include "config.hpp"
+#endif
+
 /// \file Resources.hpp
 ///
 /// \brief Include all headers for resources

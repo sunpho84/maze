@@ -1,6 +1,10 @@
 #ifndef _FOR_EACH_IN_TUPLE_HPP
 #define _FOR_EACH_IN_TUPLE_HPP
 
+#ifdef HAVE_CONFIG_H
+# include "config.hpp"
+#endif
+
 /// \file forEachInTuple.hpp
 ///
 /// \brief Provides functions to unroll tuple

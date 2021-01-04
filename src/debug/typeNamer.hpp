@@ -1,6 +1,10 @@
 #ifndef _TYPENAMER_HPP
 #define _TYPENAMER_HPP
 
+#ifdef HAVE_CONFIG_H
+# include "config.hpp"
+#endif
+
 /// \file typeNamer.hpp
 ///
 /// \brief Given a type, it provides a string with it
