@@ -11,5 +11,7 @@
 
 #include <resources/environmentFlags.hpp>
 #include <resources/memoryManager.hpp>
+#include <resources/storLoc.hpp>
+#include <resources/vector.hpp>
 
 #endif

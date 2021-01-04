@@ -6,63 +6,37 @@
 
 using namespace maze;
 
-template <int NDim>
-using Coords=std::array<int,NDim>;
+/// Hashed grid
+template <int NDim,
+	  typename Index>
+struct HashedGrid : public LxGrid<NDim,Index>
+{
+  const Index vol;
+  
+  Vector<Coords<NDim>,StorLoc::ON_CPU> coordsOfLx;
+  
+  HashedGrid(const Coords<NDim>& sizes) :
+    LxGrid<NDim,Index>(sizes),
+    vol(this->computeVol()),
+    coordsOfLx(this->getCoordsOfAllLx())
+  {
+  }
+  
+  ~HashedGrid()
+  {
+  }
+};
 
 template <int NDim,
 	  typename Index>
-struct Grid
+struct IndexedGrid
 {
-  const Coords<NDim> sizes;
+  const HashedGrid<NDim,Index>& grid;
   
-  const Index vol;
+  Index* idOfLxx;
   
-  Coords<NDim>* coordsOfLx;
-  
-  Grid(const Coords<NDim>& sizes) : sizes(sizes),vol(computeVol())
+  IndexedGrid(const HashedGrid<NDim,Index>& grid) : grid(grid)
   {
-    coordsOfLx=cpuMemoryManager->provide<Coords<NDim>>(vol);
-    
-    for(Index site=0;site<vol;site++)
-      coordsOfLx[site]=computeCoordsOfLx(site);
-  }
-  
-  ~Grid()
-  {
-    cpuMemoryManager->release(coordsOfLx);
-  }
-  
-  Index computeVol() const
-  {
-    Index out=1;
-    
-    for(int mu=0;mu<NDim;mu++)
-      out=out*sizes[mu];
-    
-    return out;
-  }
-  
-  Index computeLxOfCoords(const Coords<NDim>& coords) const
-  {
-    Index out=0;
-    
-    for(int mu=0;mu<NDim;mu++)
-      out=out*sizes[mu]+coords[mu];
-    
-    return out;
-  }
-  
-  Coords<NDim> computeCoordsOfLx(Index site) const
-  {
-    Coords<NDim> coords;
-    
-    for(int mu=NDim-1;mu>=0;mu--)
-      {
-	coords[mu]=site%sizes[mu];
-	site/=sizes[mu];
-      }
-    
-    return coords;
   }
 };
 
@@ -87,9 +61,9 @@ int main(int narg,char** arg)
   initMaze([](int narg,char** arg){},narg,arg);
   
   {
-    Grid<4,int> grid({2,2,2,2});
+    HashedGrid<4,int> grid({3,2,2,2});
     
-    LOGGER<<grid.computeVol()<<endl;
+    LOGGER<<grid.computeSurfVol()<<endl;
   }
   
   finalizeMaze();

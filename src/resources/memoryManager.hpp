@@ -21,6 +21,7 @@
 #include <debug/cudaDebug.hpp>
 #include <metaProgramming/feature.hpp>
 #include <metaProgramming/nonConstMethod.hpp>
+#include <resources/storLoc.hpp>
 #include <threads/pool.hpp>
 #include <utilities/valueWithExtreme.hpp>
 
@@ -411,27 +412,6 @@ namespace maze
 #endif
   
   /////////////////////////////////////////////////////////////////
-  
-  /// Position where to store the data: device or host
-  enum class StorLoc{ON_CPU,ON_GPU};
-  
-  /// Tag do distinguish CPU or GPU storage
-  ///
-  /// Forward definition
-  template <StorLoc SL>
-  constexpr const char* storLocTag()
-  {
-    switch(SL)
-      {
-      case StorLoc::ON_CPU:
-	return "CPU";
-	break;
-      case StorLoc::ON_GPU:
-      default:
-	return "GPU";
-	break;
-      }
-  }
   
   /// Wraps the memory manager
   ///

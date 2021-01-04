@@ -11,6 +11,7 @@
 
 #include <Base.hpp>
 #include <Debug.hpp>
+#include <Geometry.hpp>
 #include <MetaProgramming.hpp>
 #include <Resources.hpp>
 #include <Threads.hpp>
