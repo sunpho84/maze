@@ -8,6 +8,7 @@
 #include <Base.hpp>
 #include <Debug.hpp>
 #include <MetaProgramming.hpp>
+#include <Resources.hpp>
 #include <Threads.hpp>
 
 /// \brief Main namespace for the library
@@ -31,7 +32,7 @@ namespace maze
     
     printBanner();
     
-    //readAllFlags();
+    readAllFlags();
     
     printVersionAndCompileFlags(LOGGER);
     

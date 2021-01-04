@@ -16,7 +16,7 @@
 #include <vector>
 
 #include <debug/crasher.hpp>
-#include <metaProgramming/inliner.hpp>
+#include <unroll/inliner.hpp>
 
 #ifndef EXTERN_POOL
 # define EXTERN_POOL extern

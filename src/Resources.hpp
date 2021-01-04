@@ -1,0 +1,11 @@
+#ifndef _RESOURCES_HPP
+#define _RESOURCES_HPP
+
+/// \file Resources.hpp
+///
+/// \brief Include all headers for resources
+
+#include <resources/environmentFlags.hpp>
+#include <resources/memoryManager.hpp>
+
+#endif

@@ -1,0 +1,61 @@
+#ifndef _FOR_EACH_IN_TUPLE_HPP
+#define _FOR_EACH_IN_TUPLE_HPP
+
+/// \file forEachInTuple.hpp
+///
+/// \brief Provides functions to unroll tuple
+
+#include <tuple>
+
+#include <metaProgramming/cudaMacros.hpp>
+
+#include <unroll/inliner.hpp>
+
+namespace maze
+{
+  namespace resources
+  {
+    /// Wraps the function to be called
+    ///
+    /// Identycal to the \c call function above, but it works only on
+    /// host, as the auto lambda is not supported by nvcc
+    template <typename F,
+	      typename...Args>
+    INLINE_FUNCTION
+    int tupleCall(F&& f,Args&&...args)
+    {
+      f(std::forward<Args>(args)...);
+      
+      return 0;
+    }
+    
+    /// Loop on tuple arguments
+    ///
+    /// Actual implementation
+    template <int...Is,
+	      typename Tp,
+	      typename F>
+    INLINE_FUNCTION
+    void forEachInTupleInternal(std::integer_sequence<int,Is...>,Tp&& tp,F&& f)
+    {
+      /// Dummy initialized list, discarded at compile time
+      ///
+      /// The attribute avoids compiler warning.
+      [[ maybe_unused ]]
+	auto list=
+	{tupleCall(std::forward<F>(f),std::get<Is>(tp))...};
+    }
+  }
+  
+  /// Loop on tuple arguments
+  template <typename Tp,
+	    typename F>
+  INLINE_FUNCTION
+  void forEachInTuple(Tp&& tp,F&& f)
+  {
+    resources::forEachInTupleInternal(std::make_integer_sequence<int,std::tuple_size<std::remove_reference_t<Tp>>::value>{},
+				      std::forward<Tp>(tp),std::forward<F>(f));
+  }
+}
+
+#endif

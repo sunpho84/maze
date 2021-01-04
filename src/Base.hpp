@@ -6,7 +6,6 @@
 /// \brief Include all headers
 
 #include <base/logger.hpp>
-#include <base/memoryManager.hpp>
 #include <base/ranks.hpp>
 
 #endif

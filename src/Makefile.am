@@ -14,5 +14,6 @@ BUILT_SOURCES+=%D%/git_info.hpp
 include $(top_srcdir)/src/base/Makefile.am
 include $(top_srcdir)/src/debug/Makefile.am
 include $(top_srcdir)/src/grammar/Makefile.am
+include $(top_srcdir)/src/resources/Makefile.am
 include $(top_srcdir)/src/threads/Makefile.am
 

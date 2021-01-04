@@ -5,6 +5,7 @@
 ///
 /// \brief Change CUDA_DEVICE and similars in terms of whether we compile
 /// with nvcc or not
+/// \todo move
 
 #ifdef HAVE_CONFIG_H
 # include "config.hpp"

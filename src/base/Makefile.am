@@ -1,5 +1,4 @@
 ########################################### base sources ##################################
 __top_builddir__lib_libmaze_a_SOURCES+= \
-	%D%/memoryManager.cpp \
 	%D%/logger.cpp \
 	%D%/ranks.cpp

@@ -6,7 +6,7 @@
 
 #include <unistd.h>
 
-#define EXTERN_GDB
+#define EXTERN_GDB_ATTACH
 # include <debug/gdbAttach.hpp>
 
 #include <base/logger.hpp>
