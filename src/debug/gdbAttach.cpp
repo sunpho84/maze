@@ -23,11 +23,11 @@ namespace maze
 	   "$ gdb -p %d\n"
 	   "$ set flag=1\n"
 	   "$ continue\n",
-	   rank(),
+	   thisRank(),
 	   &flag,
 	   getpid());
     
-    if(rank()==0)
+    if(thisRank()==0)
       while(flag==0);
     
     ranksBarrier();

@@ -7,14 +7,11 @@
 
 /// \file lx.hpp
 
+#include <geometry/coords.hpp>
 #include <resources/vector.hpp>
 
 namespace maze
 {
-  /// Cartesian coordinates
-  template <int NDim>
-  using Coords=std::array<int,NDim>;
-  
   /// Lexicographic grid
   template <int NDim,
 	    typename Index>
@@ -31,12 +28,7 @@ namespace maze
     /// Compute the volume
     Index computeVol() const
     {
-      Index out=1;
-      
-      for(int mu=0;mu<NDim;mu++)
-	out=out*sizes[mu];
-      
-      return out;
+      return sizes.prodAll();
     }
     
     /// Check if the grid has a bulk

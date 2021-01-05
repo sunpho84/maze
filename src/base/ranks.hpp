@@ -23,16 +23,16 @@ namespace maze
   namespace resources
   {
     /// Current rank
-    EXTERN_RANK int rank INIT_RANK_TO(0);
+    EXTERN_RANK int thisRank INIT_RANK_TO(0);
     
     /// Total number of ranks
     EXTERN_RANK int nRanks INIT_RANK_TO(1);
   }
   
   /// Returns current rank
-  inline const int& rank()
+  inline const int& thisRank()
   {
-    return resources::rank;
+    return resources::thisRank;
   }
   
   /// Returns the total number of ranks
@@ -44,7 +44,7 @@ namespace maze
   /// Returns true on master rank
   inline bool isMasterRank()
   {
-    return rank()==0;
+    return thisRank()==0;
   }
   
   /// Initialize MPI
