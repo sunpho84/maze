@@ -169,11 +169,25 @@ AC_ARG_WITH(antlr4,
 	AS_HELP_STRING([--with-antlr4=path],[Path to antlr4 headers]),
 	with_antlr4="${withval}",
 	with_antlr4=/usr/include/antlr4-runtime)
-AC_CHECK_HEADERS(antlr4-runtime.h)
 CPPFLAGS="-I$with_antlr4 $CPPFLAGS"
+AC_CHECK_HEADERS(antlr4-runtime.h)
 if test "$ac_cv_header_antlr4_runtime_h" == "no"
 then
-	AC_MSG_ERROR(["Unable to fine runtime headers for antlr4, please provide an appropriate path"])
+	AC_MSG_ERROR(["Unable to find runtime headers for antlr4, please provide an appropriate path"])
+fi
+#check antlr4 library
+AC_MSG_CHECKING([for libantlr4])
+LIBS="$LIBS -lantlr4-runtime"
+AC_LINK_IFELSE(
+                [AC_LANG_PROGRAM([[#include <antlr4-runtime/antlr4-runtime.h>
+                ]],
+                   [[std::ifstream stream("/dev/null");
+		     antlr4::ANTLRInputStream input(stream);]])],
+               [AC_MSG_RESULT([yes]);Antlr4_found=true],
+               [AC_MSG_RESULT([no]);Antrl4_found=false])
+if test "$Antrl4_found" == "false"
+then
+	AC_MSG_ERROR(["Unable to find library antlr4"])
 fi
 
 #check that we asked simd type only if available
