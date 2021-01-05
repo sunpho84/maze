@@ -2,6 +2,8 @@
 #define _GEOMETRY_HPP
 
 #include <geometry/coords.hpp>
-#include <geometry/lx.hpp>
+#include <geometry/hashedLxGrid.hpp>
+#include <geometry/lxGrid.hpp>
+#include <geometry/Lebesgue.hpp>
 
 #endif

@@ -6,25 +6,6 @@
 
 using namespace maze;
 
-/// Hashed grid
-template <int NDim,
-	  typename Index>
-struct HashedLxGrid : public LxGrid<NDim,Index>
-{
-  /// Grid volume
-  const Index vol;
-  
-  /// Lookup table of coordinates
-  const Vector<Coords<NDim>> coordsOfLx;
-  
-  /// Construct from sizes
-  HashedLxGrid(const Coords<NDim>& sizes) :
-    LxGrid<NDim,Index>(sizes),
-    vol(this->computeVol()),
-    coordsOfLx(this->getCoordsOfAllLx())
-  {
-  }
-};
 
 /// Transpose a shuffler
 template <typename I>
@@ -89,84 +70,6 @@ struct IndexedGrid
 	lxOfId=Vector<Index>(grid.vol,compute);
 	idOfLx=transposeShuffler(lxOfId);
 	break;
-      }
-  }
-};
-
-template <int NDim,
-	  typename Index>
-struct LxOfLebesgueCalculator
-{
-  /// Reference grid
-  const HashedLxGrid<NDim,Index>& grid;
-  
-  /// Factors needed to compute Leb index
-  std::vector<std::vector<int>> factors;
-  
-  /// Compute the Lx of a given Lebesgue
-  Index operator()(const Index& _Leb) const
-  {
-    Index Leb=_Leb;
-    
-    /// Number of factors
-    const size_t& nFactors=factors.size();
-    Coords<NDim> c,t1,t2,t3;
-    
-    for(int i=0;i<NDim;i++)
-      {
- 	t1[i]=t2[i]=c[i]=0;
-	t3[i]=(NDim*nFactors-1)%nFactors;
-      }
-    
-    /// Convert to mixed base
-    int xMixedBase[NDim][NDim*nFactors];
-    memset(xMixedBase,0,sizeof(xMixedBase));
-    
-    for(int i=0;i<(int)(NDim*nFactors);i++)
-      {
-	int mu=NDim-1-(i%NDim);
-	int f=factors[t1[mu]][mu];
-	
-	xMixedBase[mu][t2[mu]]=Leb%f;
-	Leb/=f;
-	
-	t1[mu]=(t1[mu]+1)%nFactors;
-	t2[mu]++;
-      }
-    
-    //build coordinate in lx format
-    for(int mu=0;mu<NDim;mu++)
-      for(int j=NDim*nFactors-1;j>=0;j--)
-	{
-	  c[mu]=xMixedBase[mu][j]+factors[t3[mu]][mu]*c[mu];
-	  t3[mu]=(t3[mu]+nFactors-1)%nFactors;
-	}
-    
-    return grid.computeLxOfCoords(c);
-  }
-  
-  /// Constructor
-  LxOfLebesgueCalculator(const HashedLxGrid<NDim,Index>& grid) : grid(grid)
-  {
-    /// Get nmax_fact
-    int nMaxFacts=0;
-    for(int mu=0;mu<NDim;mu++)
-      nMaxFacts=std::max(nMaxFacts,(int)factorize(grid.sizes[mu]).size());
-    
-    /// Set all factors to 1
-    factors.resize(nMaxFacts,std::vector<int>(NDim));
-    for(int i=0;i<nMaxFacts;i++)
-      for(int mu=0;mu<NDim;mu++)
-	factors[i][mu]=1;
-    
-    //put all the non-1 factors
-    for(int mu=0;mu<NDim;mu++)
-      {
-	const std::vector<Index> listFactMu=factorize(grid.sizes[mu]);
-	const int nFacts=listFactMu.size();
-	const int nFacts1=nMaxFacts-nFacts;
-	for(int ifact=0;ifact<nFacts;ifact++)
-	  factors[nFacts1+ifact][mu]=listFactMu[ifact];
       }
   }
 };
