@@ -14,7 +14,7 @@
 
 namespace maze
 {
-#if USE_CUDA
+#ifdef USE_CUDA
   void internalDecryptCudaError(const int lineNo,const char* fileName,const char* funcName,const cudaError_t rc,const char *templ,...)
   {
     if(rc!=cudaSuccess)

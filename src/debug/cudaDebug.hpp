@@ -10,7 +10,8 @@
 /// \brief Debug cuda error
 
 # ifdef USE_CUDA
-  
+namespace maze
+{
   /// Put line, file and function in the actual call
 # define DECRYPT_CUDA_ERROR(...) \
   internalDecryptCudaError(__LINE__,__FILE__,__FUNCTION__,__VA_ARGS__)
@@ -21,7 +22,7 @@
 				const char* function,    ///< Function where the error occurred
 				const cudaError_t rc,    ///< Error code
 				const char *templ,...);  ///< Message template
-
+}
 # endif
 
 #endif
