@@ -1,12 +1,13 @@
 #ifndef _STOR_LOC_HPP
 #define _STOR_LOC_HPP
 
-
 #ifdef HAVE_CONFIG_H
 # include "config.hpp"
 #endif
 
 /// \file storLoc.hpp
+
+#include <metaProgramming/cudaMacros.hpp>
 
 namespace maze
 {
@@ -30,6 +31,13 @@ namespace maze
 	break;
       }
   }
+  
+  /// Storage location accoring to current architecture
+  [[ maybe_unused ]]
+  constexpr StorLoc CurrentArchStorLoc=
+    CompilingForDevice?
+    StorLoc::ON_GPU:
+    StorLoc::ON_CPU;
 }
 
 #endif

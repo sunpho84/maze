@@ -236,18 +236,21 @@ namespace maze
     template <typename T>
     void release(T* &ptr) ///< Pointer getting freed
     {
-      ThreadPool::waitThatAllWorkersWaitForWork();
-      
-      if(useCache)
-	moveToCache(static_cast<void*>(ptr));
-      else
+      if(ptr!=nullptr)
 	{
-	  popFromUsed(ptr);
-	  this->deFeat().deAllocateRaw(static_cast<void*>(ptr));
+	  ThreadPool::waitThatAllWorkersWaitForWork();
+	  
+	  if(useCache)
+	    moveToCache(static_cast<void*>(ptr));
+	  else
+	    {
+	      popFromUsed(ptr);
+	      this->deFeat().deAllocateRaw(static_cast<void*>(ptr));
+	    }
+	  
+	  ptr=
+	    nullptr;
 	}
-      
-      ptr=
-	nullptr;
     }
     
     /// Release all used memory

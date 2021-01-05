@@ -96,13 +96,13 @@ namespace maze
     }
     
     /// Computes the table of the coordinates of all sites
-    Vector<Coords<NDim>,StorLoc::ON_CPU> getCoordsOfAllLx() const
+    Vector<Coords<NDim>> getCoordsOfAllLx() const
     {
       /// Precompute volume
       const Index vol=computeVol();
       
       /// Allocates the table
-      Vector<Coords<NDim>,StorLoc::ON_CPU> coordsOfLx(vol);
+      Vector<Coords<NDim>> coordsOfLx(vol);
       
       for(Index site=0;site<vol;site++)
 	coordsOfLx[site]=this->computeCoordsOfLx(site);

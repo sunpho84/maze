@@ -15,6 +15,7 @@
 #include <MetaProgramming.hpp>
 #include <Resources.hpp>
 #include <Threads.hpp>
+#include <Utilities.hpp>
 
 /// \brief Main namespace for the library
 namespace maze
