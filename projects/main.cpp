@@ -45,7 +45,7 @@ template <int NDim,
 struct IndexedGrid
 {
   /// Grid of reference
-  const HashedLxGrid<NDim,Index>& grid;
+  const LxGrid<NDim,Index>& grid;
   
   /// Index of a given lexicographic site
   Vector<Index> idOfLx;
@@ -55,7 +55,7 @@ struct IndexedGrid
   
   /// Constructor taking a reference grid and a function to compute id from lx
   template <typename F>
-  IndexedGrid(const HashedLxGrid<NDim,Index>& grid,
+  IndexedGrid(const LxGrid<NDim,Index>& grid,
 	      F compute,
 	      const HowToIndex& HT) :
     grid(grid)
@@ -74,11 +74,6 @@ struct IndexedGrid
   }
 };
 
-void a()
-{
-
-}
-
 template <int NDim=4>
 struct Geometry
 {
@@ -96,11 +91,11 @@ struct Geometry
   
   /// Ranks lx grid
   using RanksLxGrid=
-    HashedLxGrid<NDim,ShortIndex>;
+    LxGrid<NDim,ShortIndex>;
   
   /// Local lattice lx grid
   using LocLxGrid=
-    HashedLxGrid<NDim,LongIndex>;
+    LxGrid<NDim,LongIndex>;
   
   /// Global site grid
   const GlbLxGrid glbLxGrid;
@@ -142,24 +137,109 @@ struct Geometry
     return glbCoords;
   }
   
+  /// Constructor
   Geometry(const Coords<NDim>& glbSizes,
 	   const Coords<NDim>& ranksSizes) :
     glbLxGrid(glbSizes),
     ranksLxGrid(ranksSizes),
     locLxGrid(glbSizes/ranksSizes)
   {
-    LOGGER<<glbSizes<<" "<<ranksSizes<<" "<<endl;
+    if((glbSizes%ranksSizes).sumAll())
+      CRASHER<<"Global sizes "<<glbSizes<<" incompatible with rank sizes "<<ranksSizes<<endl;
   }
 };
 
+/// Geometry for fused sites
+template <int NDim>
+struct FusedSitesGeometry
+{
+  ///  Reference geometry
+  using Geom=Geometry<NDim>;
+  
+  /// Type used to refer to virtual nodes
+  using VNodesIndex=
+    typename Geom::ShortIndex;
+  
+  // Type used to refer to fused sites
+  using FSitesIndex=
+    typename Geom::LongIndex;
+  
+  /// Type used to refer to local index
+  using LocLxIndex=
+    typename Geom::LongIndex;
+  
+  /// Virtual nodes grid
+  using VNodesLxGrid=
+    LxGrid<NDim,VNodesIndex>;
+  
+  /// Fused sites grid
+  using FSitesLxGrid=
+    LxGrid<NDim,FSitesIndex>;
+  
+  /// Reference geometry
+  const Geometry<NDim>& geom;
+  
+  /// Grid to access virtual nodes
+  const VNodesLxGrid vNodesLxGrid;
+  
+  /// Grid to move within fused sites
+  const FSitesLxGrid fSitesLxGrid;
+  
+  /// Lebesgue ordering of fused sites
+  const IndexedGrid<NDim,FSitesIndex> LebOrder;
+  
+  /// Computes the coords of a given fused site
+  const Coords<NDim>& computeFSiteCoordsOfLeb(const FSitesIndex& fSiteLeb) const
+  {
+    /// Computes the lx order
+    FSitesIndex& fSiteLx=
+      LebOrder.lxOfId[fSiteLeb];
+    
+    return
+      fSitesLxGrid.coordsOfLx[fSiteLx];
+  }
+  
+  /// Compute global lx of a given pair of fused/unfused indices
+  Coords<NDim> computeLocCoordsfFSiteVNode(const VNodesIndex& vNode,
+					   const FSitesIndex& fSiteLeb) const
+  {
+    /// Fused site coordinates
+    const Coords<NDim> fSiteCoords=
+      computeFSiteCoords(fSiteLeb);
+    
+    /// Virtual node coordinates
+    const Coords<NDim> vNodeCoords=
+      vNodesLxGrid.coordsOfLx[vNode];
+    
+    /// Local coordinates
+    const Coords<NDim> locCoords=
+      vNodeCoords+vNodesLxGrid.sizes*fSiteCoords;
+    
+    return locCoords;
+  }
+  
+  /// Constructor
+  FusedSitesGeometry(const Geometry<NDim>& geom,
+		     const Coords<NDim>& vNodesLxSizes) :
+    geom(geom),
+    vNodesLxGrid(vNodesLxSizes),
+    fSitesLxGrid(geom.locLxGrid.sizes/vNodesLxSizes),
+    LebOrder(fSitesLxGrid,LxOfLebesgueCalculator<NDim,FSitesIndex>(fSitesLxGrid),HowToIndex::DEDUCE_LX_FROM_INDEX)
+  {
+    if((geom.locLxGrid.sizes%vNodesLxSizes).sumAll())
+      CRASHER<<"Local sizes "<<geom.locLxGrid.sizes<<" incompatible with requested vNodes Sizes"<<vNodesLxSizes<<endl;
+  }
+};
 
 void in_main(int narg,char** arg)
 {
   Geometry<4> geometry({2,2,2,2},{2,1,1,1});
   
+  FusedSitesGeometry<4> fGeom(geometry,{1,2,2,2});
+  
   LOGGER<<geometry.computeGlbLxCoordsOfLocLx(3)<<endl;
   
-  // HashedLxGrid<4,int> grid({4,2,2,2});
+  // LxGrid<4,int> grid({4,2,2,2});
     
   //   LOGGER<<grid.computeSurfVol()<<endl;
     

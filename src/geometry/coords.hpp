@@ -59,6 +59,7 @@ namespace maze
     PROVIDE_BINOP(-)
     PROVIDE_BINOP(*)
     PROVIDE_BINOP(/)
+    PROVIDE_BINOP(%)
     
 #undef PROVIDE_BINOP
     
@@ -79,6 +80,7 @@ namespace maze
     PROVIDE_BINOP(-)
     PROVIDE_BINOP(*)
     PROVIDE_BINOP(/)
+    PROVIDE_BINOP(%)
     
 #undef PROVIDE_BINOP
     

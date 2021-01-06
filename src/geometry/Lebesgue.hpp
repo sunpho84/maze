@@ -7,7 +7,8 @@
 
 /// \file Lebesgue.hpp
 
-#include <geometry/hashedLxGrid.hpp>
+#include <geometry/lxGrid.hpp>
+#include <utilities/factorize.hpp>
 
 namespace maze
 {
@@ -17,7 +18,7 @@ namespace maze
   struct LxOfLebesgueCalculator
   {
     /// Reference grid
-    const HashedLxGrid<NDim,Index>& grid;
+    const LxGrid<NDim,Index>& grid;
     
     /// Factors needed to compute Leb index
     std::vector<std::vector<int>> factors;
@@ -65,7 +66,7 @@ namespace maze
     }
     
     /// Constructor
-    LxOfLebesgueCalculator(const HashedLxGrid<NDim,Index>& grid) : grid(grid)
+    LxOfLebesgueCalculator(const LxGrid<NDim,Index>& grid) : grid(grid)
     {
       /// Get nmax_fact
       int nMaxFacts=0;
@@ -81,7 +82,7 @@ namespace maze
       //put all the non-1 factors
       for(int mu=0;mu<NDim;mu++)
 	{
-	  const std::vector<Index> listFactMu=factorize(grid.sizes[mu]);
+	  const std::vector<int> listFactMu=factorize(grid.sizes[mu]);
 	  const int nFacts=listFactMu.size();
 	  const int nFacts1=nMaxFacts-nFacts;
 	  for(int ifact=0;ifact<nFacts;ifact++)

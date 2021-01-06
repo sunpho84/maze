@@ -5,7 +5,7 @@
 # include "config.hpp"
 #endif
 
-/// \file lx.hpp
+/// \file lxGrid.hpp
 
 #include <geometry/coords.hpp>
 #include <resources/vector.hpp>
@@ -20,8 +20,17 @@ namespace maze
     /// Sizes of the grid
     const Coords<NDim> sizes;
     
-    /// Constructor
-    LxGrid(const Coords<NDim>& sizes) : sizes(sizes)
+    /// Grid volume
+    const Index vol;
+    
+    /// Lookup table of coordinates
+    const Vector<Coords<NDim>> coordsOfLx;
+    
+    /// Construct from sizes
+    LxGrid(const Coords<NDim>& sizes) :
+      sizes(sizes),
+      vol(this->computeVol()),
+      coordsOfLx(this->computeCoordsOfAllLx())
     {
     }
     
@@ -32,7 +41,7 @@ namespace maze
     }
     
     /// Check if the grid has a bulk
-    bool getHasBulk() const
+    bool computeHasBulk() const
     {
       /// Result initialized to true
       bool hasBulk=true;
@@ -88,7 +97,7 @@ namespace maze
     }
     
     /// Computes the table of the coordinates of all sites
-    Vector<Coords<NDim>> getCoordsOfAllLx() const
+    Vector<Coords<NDim>> computeCoordsOfAllLx() const
     {
       /// Precompute volume
       const Index vol=computeVol();
