@@ -74,111 +74,6 @@ struct IndexedGrid
   }
 };
 
-/// Structure to incapsulate the lexicographic grids needed to move across the lattice
-///
-/// In the naming scheme, Lx denotes a site
-template <int NDim=4>
-struct Geometry
-{
-  /// Index to be used for grid that can deal with many sites
-  using LongIndex=
-    int64_t;
-  
-  /// Index to be used for grid that can deal with few sites
-  using ShortIndex=
-    int32_t;
-  
-  /// Global lattice grid
-  using GlbGrid=
-    LxGrid<NDim,LongIndex,NOT_HASHED>;
-  
-  /// Ranks grid
-  using RanksGrid=
-    LxGrid<NDim,ShortIndex,HASHED>;
-  
-  /// Local lattice grid
-  using LocGrid=
-    LxGrid<NDim,LongIndex,HASHED>;
-  
-  /// Global site grid
-  const GlbGrid glbGrid;
-  
-  /// Global volume
-  const LongIndex& glbVol=
-    glbGrid.vol;
-  
-  /// Ranks grid
-  const RanksGrid ranksGrid;
-  
-  /// Local dimensions
-  const Coords<NDim> localDimensions;
-  
-  /// Local sites grid
-  const LocGrid locGrid;
-  
-  /// Local volume
-  const LongIndex locVol=
-    locGrid.vol;
-  
-  /// Parity of local sites
-  const Vector<bool> locLxParityTable;
-  
-  /// Parity of a site, given its global coordinates
-  bool parityOfGlbCoords(const Coords<NDim>& c) const
-  {
-    return c.sumAll()%2;
-  }
-  
-  /// Compute the parity of a global site
-  bool parityOfGlbLx(const LongIndex& id) const
-  {
-    return parityOfGlbCoords(glbGrid.computeCoordsOfLx(id));
-  }
-  /// Returns the parity of a locaal site from the lookup table
-  bool parityOfLocLx(const LongIndex& id) const
-  {
-    return locLxParityTable[id];
-  }
-  
-  /// Compute explicitly the parity of local sites
-  bool computeParityOfLoclx(const LongIndex& id) const
-  {
-    return parityOfGlbCoords(glbCoordsOfLocLx(id));
-  }
-  
-  /// Compute global coordinates, given local site and rank
-  Coords<NDim> glbCoordsOfLocLx(const LongIndex& locLx,
-				const ShortIndex& rank=thisRank()) const
-  {
-    /// Local coordinates
-    const Coords<NDim> locCoords=
-      locGrid.coordsOfLx(locLx);
-    
-    /// Coordinate of the rank
-    const Coords<NDim> rankCoords=
-      ranksGrid.coordsOfLx(rank);
-    
-    /// Resulting coordinates
-    Coords<NDim> glbCoords=
-      locCoords+rankCoords*locGrid.sizes;
-    
-    return glbCoords;
-  }
-  
-  /// Constructor
-  Geometry(const Coords<NDim>& glbSizes,
-	   const Coords<NDim>& ranksSizes) :
-    glbGrid(glbSizes,allDimensions<NDim>),
-    ranksGrid(ranksSizes,allDimensions<NDim>),
-    localDimensions(ranksSizes==1),
-    locGrid(glbSizes/ranksSizes,localDimensions),
-    locLxParityTable(locVol,[this](const LongIndex& lx){return this->computeParityOfLoclx(lx);})
-  {
-    if((glbSizes%ranksSizes).sumAll())
-      CRASHER<<"Global sizes "<<glbSizes<<" incompatible with rank sizes "<<ranksSizes<<endl;
-  }
-};
-
 // /// Geometry for fused sites
 // template <int NDim>
 // struct FusedSitesGeometry
@@ -263,7 +158,7 @@ struct Geometry
 
 void inMain(int narg,char** arg)
 {
-  Geometry<4> geometry({32,32,4,32},{2,2,2,1});
+  Geometry<4> geometry({4,4,4,4},{2,2,2,1});
   
   LOGGER<<allDimensions<4><<endl;
   LOGGER<<allDimensionsBut<4,0><<endl;
@@ -272,7 +167,10 @@ void inMain(int narg,char** arg)
   
   //FusedSitesGeometry<4> fGeom(geometry,{1,2,2,2});
   
-  LOGGER<<geometry.glbCoordsOfLocLx(3)<<endl;
+  LOGGER<<geometry.glbCoordsOfLocLx(Geometry<4>::locSite(3))<<endl;
+  
+  for(Geometry<4>::LocSite lx(0);lx<geometry.locVol;lx++)
+    LOGGER<<geometry.parityOfLocLx(lx)<<endl;
   
   // LxGrid<4,int> grid({4,2,2,2});
     

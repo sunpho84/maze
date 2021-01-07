@@ -106,15 +106,15 @@ namespace maze
     {
     }
     
-    /// Convert to actual value
-    CUDA_HOST_DEVICE constexpr
+    /// Convert to actual reference
+    INLINE_FUNCTION CUDA_HOST_DEVICE constexpr
     operator Index&()
     {
       return
 	i;
     }
     
-    /// Convert to actual value with const attribute
+    /// Convert to actual reference with const attribute
     INLINE_FUNCTION constexpr CUDA_HOST_DEVICE
     operator const Index&()
       const
@@ -148,7 +148,7 @@ namespace maze
   /// Promotes the argument i to a COMPONENT, through a function with given NAME
 #define DECLARE_COMPONENT_FACTORY(NAME,COMPONENT...)		\
   template <typename T>						\
-  INLINE_FUNCTION constexpr CUDA_HOST_DEVICE			\
+  static INLINE_FUNCTION constexpr CUDA_HOST_DEVICE		\
   COMPONENT NAME(T&& i)						\
   {								\
     return							\

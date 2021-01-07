@@ -114,7 +114,7 @@ namespace maze
     /// Compute the volume
     Index computeVol() const
     {
-      return sizes.prodAll();
+      return Index(sizes.prodAll());
     }
     
     /// Check if the grid has a bulk
@@ -136,7 +136,7 @@ namespace maze
     Index computeBulkVol() const
     {
       /// Initial value
-      Index bulkVol=1;
+      Index bulkVol{1};
       
       for(int mu=0;mu<NDim;mu++)
 	bulkVol*=
@@ -188,7 +188,7 @@ namespace maze
       /// Allocates the table
       Vector<Coords<NDim>> coordsOfAllLx(vol);
       
-      for(Index site=0;site<vol;site++)
+      for(Index site(0);site<vol;site++)
 	coordsOfAllLx[site]=this->computeCoordsOfLx(site);
       
       return coordsOfAllLx;

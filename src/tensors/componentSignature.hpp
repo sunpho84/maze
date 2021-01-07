@@ -39,7 +39,7 @@ namespace maze
   /// Define the signature for a componenent convertible to TYPE of given NAME and SIZE
   ///
   /// The specified name is suffixed with "Signature", to allow the
-  /// definition of the actual component with the expected name
+  /// Definition of the actual component with the expected name
 #define DECLARE_COMPONENT_SIGNATURE(NAME,TYPE,LENGTH)		\
   /*! Signature for the NAME component */			\
   struct NAME ## Signature :					\

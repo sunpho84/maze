@@ -1,8 +1,9 @@
-#ifndef _GEOMETRY_HPP
-#define _GEOMETRY_HPP
+#ifndef _LATTICE_HPP
+#define _LATTICE_HPP
 
-#include <geometry/coords.hpp>
-#include <geometry/lxGrid.hpp>
-#include <geometry/Lebesgue.hpp>
+#include <lattice/coords.hpp>
+#include <lattice/geometry.hpp>
+#include <lattice/lxGrid.hpp>
+#include <lattice/Lebesgue.hpp>
 
 #endif
