@@ -6,31 +6,95 @@
 #endif
 
 /// \file lxGrid.hpp
-
 #include <geometry/coords.hpp>
 #include <resources/vector.hpp>
 
 namespace maze
 {
+  /// Options for lookup-table usage
+  enum UseHashedCoords{HASHED,NOT_HASHED};
+  
   /// Lexicographic grid
   template <int NDim,
+	    typename Index,
+	    UseHashedCoords HC>
+  struct LxGrid;
+  
+  /// Uses a lookup table for the coordinates
+  template <int NDim,
 	    typename Index>
+  struct LxCoordsLookupTable
+  {
+    /// Lookup table of coordinates
+    const Vector<Coords<NDim>> coordsOfLxTable;
+    
+    /// Constructor
+    LxCoordsLookupTable(const LxGrid<NDim,Index,HASHED>& grid) :
+      coordsOfLxTable(grid.computeCoordsOfAllLx())
+    {
+    }
+    
+    /// Return data from the lookup table
+    INLINE_FUNCTION const Coords<NDim>& coordsOfLx(const LxGrid<NDim,Index,HASHED>& grid,
+						   const Index& id) const
+    {
+      return coordsOfLxTable[id];
+    }
+  };
+  
+  /// Do not hold the lookup table
+  template <int NDim,
+	    typename Index>
+  struct LxCoordsNoLookupTable
+  {
+    /// Constructor
+    LxCoordsNoLookupTable(const LxGrid<NDim,Index,NOT_HASHED>& grid)
+    {
+    }
+    
+    /// Computes
+    INLINE_FUNCTION Coords<NDim> coordsOfLx(const LxGrid<NDim,Index,NOT_HASHED>& grid,
+					    const Index& id) const
+    {
+      return grid.computeCoordsOfLx(id);
+    }
+  };
+  
+  /// Use or not the lookup table
+  template <int NDim,
+	    typename Index,
+	    UseHashedCoords UHC>
+  using HashedOrNotLxCoords=
+    std::conditional_t<UHC==HASHED,LxCoordsLookupTable<NDim,Index>,LxCoordsNoLookupTable<NDim,Index>>;
+  
+  /// Lexicographic grid
+  template <int NDim,
+	    typename Index,
+	    UseHashedCoords UHC>
   struct LxGrid
   {
+    /// Number of dimensions
+    static constexpr int nDim=
+      NDim;
+    
+    /// Keep trace if hashed or not
+    static constexpr UseHashedCoords isHashed=
+      UHC;
+    
     /// Sizes of the grid
     const Coords<NDim> sizes;
     
     /// Grid volume
     const Index vol;
     
-    /// Lookup table of coordinates
-    const Vector<Coords<NDim>> coordsOfLx;
+    /// Holds the coordinates or compute them
+    HashedOrNotLxCoords<NDim,Index,UHC> coordsProvider;
     
     /// Construct from sizes
     LxGrid(const Coords<NDim>& sizes) :
       sizes(sizes),
       vol(this->computeVol()),
-      coordsOfLx(this->computeCoordsOfAllLx())
+      coordsProvider(*this)
     {
     }
     
@@ -46,6 +110,7 @@ namespace maze
       /// Result initialized to true
       bool hasBulk=true;
       
+      /// Dimension
       int mu=0;
       while(hasBulk and mu<NDim)
 	hasBulk&=(sizes[mu++]>=2);
@@ -82,7 +147,7 @@ namespace maze
     }
     
     /// Computes the coordinates from the lexicographic index
-    Coords<NDim> computeCoordsOfLx(Index site) const
+    Coords<NDim> computeCoordsOfLx(Index site /* don't make it const */) const
     {
       /// Result coordinates
       Coords<NDim> coords;
@@ -103,12 +168,17 @@ namespace maze
       const Index vol=computeVol();
       
       /// Allocates the table
-      Vector<Coords<NDim>> coordsOfLx(vol);
+      Vector<Coords<NDim>> coordsOfAllLx(vol);
       
       for(Index site=0;site<vol;site++)
-	coordsOfLx[site]=this->computeCoordsOfLx(site);
+	coordsOfAllLx[site]=this->computeCoordsOfLx(site);
       
-      return coordsOfLx;
+      return coordsOfAllLx;
+    }
+    
+    decltype(auto) coordsOfLx(const Index& id) const
+    {
+      return coordsProvider.coordsOfLx(*this,id);
     }
   };
 }
