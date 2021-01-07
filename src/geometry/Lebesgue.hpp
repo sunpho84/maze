@@ -13,12 +13,19 @@
 namespace maze
 {
   /// Structure to compute Lebesgue index
-  template <int NDim,
-	    typename Index>
+  template <typename G>
   struct LxOfLebesgueCalculator
   {
     /// Reference grid
-    const LxGrid<NDim,Index>& grid;
+    const G& grid;
+    
+    /// Number of dimensions
+    static constexpr int NDim=
+      G::NDim;
+    
+    /// Index type
+    using Index=
+      typename G::Index;
     
     /// Factors needed to compute Leb index
     std::vector<std::vector<int>> factors;
@@ -66,7 +73,7 @@ namespace maze
     }
     
     /// Constructor
-    LxOfLebesgueCalculator(const LxGrid<NDim,Index>& grid) : grid(grid)
+    LxOfLebesgueCalculator(const G& grid) : grid(grid)
     {
       /// Get nmax_fact
       int nMaxFacts=0;

@@ -19,27 +19,44 @@ namespace maze
     /// Internal data
     std::array<int,NDim> data;
     
-    // operator std::array<int,NDim>&()
-    // {
-    //   return data;
-    // }
-    
-    // /// Convert
-    // operator const std::array<int,NDim>&() const
-    // {
-    //   return data;
-    // }
-    
     /// Const subscribe operator
-    const int& operator[](const int& mu) const
+    constexpr const int& operator[](const int& mu) const
     {
       return data[mu];
     }
     
     /// Subscribe operator
-    int& operator[](const int& mu)
+    constexpr int& operator[](const int& mu)
     {
       return data[mu];
+    }
+    
+    /// Homoegeneus initialization
+    static constexpr Coords getAll(const int& V)
+    {
+      /// Result
+      Coords out{};
+      
+      for(int mu=0;mu<NDim;mu++)
+	out[mu]=V;
+      
+      return out;
+    }
+    
+    /// Semi-Homoegeneus initialization
+    static constexpr Coords getAllBut(const int& V,
+				      const int& Mu)
+    {
+      /// Result
+      Coords out{};
+      
+      for(int mu=0;mu<NDim;mu++)
+	if(Mu==mu)
+	  out[mu]=0;
+	else
+	  out[mu]=V;
+      
+      return out;
     }
     
 #define PROVIDE_BINOP(OP)			\
@@ -80,6 +97,7 @@ namespace maze
     PROVIDE_BINOP(-)
     PROVIDE_BINOP(*)
     PROVIDE_BINOP(/)
+    PROVIDE_BINOP(==)
     PROVIDE_BINOP(%)
     
 #undef PROVIDE_BINOP
@@ -119,6 +137,22 @@ namespace maze
     
     return os;
   }
+  
+  /// 1 in all directions
+  template <int NDim>
+  constexpr Coords<NDim> allDimensions=
+	Coords<NDim>::getAll(1);
+  
+  /// 0 in all directions
+  template <int NDim>
+  constexpr Coords<NDim> noDimensions=
+	Coords<NDim>::getAll(0);
+  
+  /// all directions but a given one
+  template <int NDim,
+	    int Mu>
+  constexpr Coords<NDim> allDimensionsBut=
+	Coords<NDim>::getAllBut(1,Mu);
 }
 
 #endif

@@ -84,16 +84,29 @@ namespace maze
     /// Sizes of the grid
     const Coords<NDim> sizes;
     
+    /// Keeps note whether each direction is periodic, or not
+    const Coords<NDim> periodic;
+    
     /// Grid volume
     const Index vol;
+    
+    /// Check if it has bulk
+    const bool hasBulk;
+    
+    /// Compute the bulk volume
+    const Index bulkVol;
     
     /// Holds the coordinates or compute them
     HashedOrNotLxCoords<NDim,Index,UHC> coordsProvider;
     
     /// Construct from sizes
-    LxGrid(const Coords<NDim>& sizes) :
+    LxGrid(const Coords<NDim>& sizes,
+	   const Coords<NDim>& periodic) :
       sizes(sizes),
+      periodic(periodic),
       vol(this->computeVol()),
+      hasBulk(computeHasBulk()),
+      bulkVol(computeBulkVol()),
       coordsProvider(*this)
     {
     }
@@ -105,15 +118,16 @@ namespace maze
     }
     
     /// Check if the grid has a bulk
+    ///
+    /// Each dimension must be periodic, or have size>=2
     bool computeHasBulk() const
     {
       /// Result initialized to true
       bool hasBulk=true;
       
       /// Dimension
-      int mu=0;
-      while(hasBulk and mu<NDim)
-	hasBulk&=(sizes[mu++]>=2);
+      for(int mu=0;mu<NDim;mu++)
+	hasBulk&=(periodic[mu] or sizes[mu]>=2);
       
       return hasBulk;
     }
@@ -121,10 +135,14 @@ namespace maze
     /// Compute the bulk volume
     Index computeBulkVol() const
     {
+      /// Initial value
       Index bulkVol=1;
       
       for(int mu=0;mu<NDim;mu++)
-	bulkVol*=std::max(sizes[mu]-2,0);
+	bulkVol*=
+	  periodic[mu]?
+	  sizes[mu]:
+	  std::max(sizes[mu]-2,0);
 	  
       return bulkVol;
     }
@@ -176,6 +194,7 @@ namespace maze
       return coordsOfAllLx;
     }
     
+    /// Returns coordinates of lx site, using lookup table if available
     decltype(auto) coordsOfLx(const Index& id) const
     {
       return coordsProvider.coordsOfLx(*this,id);
