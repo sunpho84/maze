@@ -11,7 +11,7 @@
 
 #include <Base.hpp>
 #include <Debug.hpp>
-#include <Geometry.hpp>
+#include <Lattice.hpp>
 #include <MetaProgramming.hpp>
 #include <Resources.hpp>
 #include <Tensors.hpp>

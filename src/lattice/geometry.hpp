@@ -7,7 +7,7 @@
 
 /// \file geometry.hpp
 
-#include <geometry/lxGrid.hpp>
+#include <lattice/lxGrid.hpp>
 #include <tensors/component.hpp>
 
 namespace maze

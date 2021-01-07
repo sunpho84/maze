@@ -7,7 +7,7 @@
 
 /// \file Lebesgue.hpp
 
-#include <geometry/lxGrid.hpp>
+#include <lattice/lxGrid.hpp>
 #include <utilities/factorize.hpp>
 
 namespace maze

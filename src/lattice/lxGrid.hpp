@@ -6,7 +6,7 @@
 #endif
 
 /// \file lxGrid.hpp
-#include <geometry/coords.hpp>
+#include <lattice/coords.hpp>
 #include <resources/vector.hpp>
 
 namespace maze
