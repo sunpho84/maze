@@ -9,6 +9,8 @@
 ///
 /// \brief Provides an entry in the assembly to trace a location in the source
 
+#include <base/preprocessor.hpp>
+
 namespace maze
 {
 #ifdef COMPILING_FOR_DEVICE

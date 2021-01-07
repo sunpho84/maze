@@ -10,6 +10,7 @@
 /// \brief Include all headers
 
 #include <base/logger.hpp>
+#include <base/preprocessor.hpp>
 #include <base/ranks.hpp>
 
 #endif

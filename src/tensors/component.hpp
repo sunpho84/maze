@@ -14,16 +14,15 @@
 /// To declare a new tensor component, create a class inheriting from
 /// TensCompIdx with the appropriated signature.
 
-#include <base/inliner.hpp>
-#include <base/feature.hpp>
-#include <base/metaProgramming.hpp>
-#include <dataTypes/SIMD.hpp>
+#include <unroll/inliner.hpp>
+#include <metaProgramming/feature.hpp>
+#include <resources/simdTypes.hpp>
 #include <tensors/componentSize.hpp>
 #include <tensors/componentSignature.hpp>
 
 #include <array>
 
-namespace ciccios
+namespace maze
 {
   DEFINE_FEATURE(IsTensComp);
   
@@ -195,26 +194,6 @@ namespace ciccios
   DECLARE_COMPONENT_FACTORY(FACTORY ## Cln,NAME ## Cln);	\
 								\
   DECLARE_COMPONENT_FACTORY(FACTORY,NAME)
-  
-  /////////////////////////////////////////////////////////////////
-  
-  /// \todo move to a physics file
-  
-  DECLARE_COMPONENT(Compl,int,2,complComp);
-  
-  /// Number of component for a spin vector
-  constexpr int NSpinComp=4;
-  
-  DECLARE_ROW_OR_CLN_COMPONENT(Spin,int,NSpinComp,sp);
-  
-  /// Number of component for a color vector
-  constexpr int NColComp=3;
-  
-  DECLARE_ROW_OR_CLN_COMPONENT(Col,int,NColComp,cl);
-  
-  // Spacetime
-  //DECLARE_COMPONENT(SpaceTime,int64_t,DYNAMIC,spaceTime);
-  DECLARE_COMPONENT(SpaceTime,int,DYNAMIC,spaceTime);
 }
 
 #endif

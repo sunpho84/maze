@@ -10,6 +10,7 @@
 /// \brief Implements static polymorphism
 
 #include <metaProgramming/cudaMacros.hpp>
+#include <metaProgramming/nonConstMethod.hpp>
 
 namespace maze
 {

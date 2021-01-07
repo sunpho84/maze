@@ -14,8 +14,30 @@
 #include <Geometry.hpp>
 #include <MetaProgramming.hpp>
 #include <Resources.hpp>
+#include <Tensors.hpp>
 #include <Threads.hpp>
 #include <Utilities.hpp>
+
+  // /////////////////////////////////////////////////////////////////
+  
+  // /// \todo move to a physics file
+  
+  // DECLARE_COMPONENT(Compl,int,2,complComp);
+  
+  // /// Number of component for a spin vector
+  // constexpr int NSpinComp=4;
+  
+  // DECLARE_ROW_OR_CLN_COMPONENT(Spin,int,NSpinComp,sp);
+  
+  // /// Number of component for a color vector
+  // constexpr int NColComp=3;
+  
+  // DECLARE_ROW_OR_CLN_COMPONENT(Col,int,NColComp,cl);
+  
+  // // Spacetime
+  // //DECLARE_COMPONENT(SpaceTime,int64_t,DYNAMIC,spaceTime);
+  // DECLARE_COMPONENT(SpaceTime,int,DYNAMIC,spaceTime);
+
 
 /// \brief Main namespace for the library
 namespace maze
