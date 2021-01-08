@@ -8,9 +8,14 @@
 /// \file Tensors.hpp
 
 #include <tensors/arithmeticTensor.hpp>
+#include <tensors/complex.hpp>
 #include <tensors/component.hpp>
 #include <tensors/componentSignature.hpp>
 #include <tensors/componentsList.hpp>
 #include <tensors/componentSize.hpp>
+#include <tensors/tensor.hpp>
+#include <tensors/tensorDecl.hpp>
+#include <tensors/tensorSlice.hpp>
+#include <tensors/tensorStorage.hpp>
 
 #endif

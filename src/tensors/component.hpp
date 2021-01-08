@@ -10,9 +10,6 @@
 /// a list of component. Each component can be of Row or Column type,
 /// and can be listed more than once. Each occurrency is distinguished
 /// by the parameter Which.
-///
-/// To declare a new tensor component, create a class inheriting from
-/// TensCompIdx with the appropriated signature.
 
 #include <unroll/inliner.hpp>
 #include <metaProgramming/feature.hpp>
@@ -24,24 +21,24 @@
 
 namespace maze
 {
-  DEFINE_FEATURE(IsTensComp);
+  DEFINE_FEATURE(IsTensorComp);
   
-  DEFINE_FEATURE_GROUP(TensCompFeat);
+  DEFINE_FEATURE_GROUP(TensorCompFeat);
   
-  /// Short name for the TensComp
+  /// Short name for the TensorComp
 #define THIS					\
-  TensComp<S,RC,Which>
+  TensorComp<S,RC,Which>
   
   /// Tensor component defined by base type S
   template <typename S,
 	    RwCl RC=ROW,
 	    int Which=0>
-  struct TensComp :
-    public TensCompFeat<IsTensComp,THIS>
+  struct TensorComp :
+    public TensorCompFeat<IsTensorComp,THIS>
   {
     /// Transposed component
     using Transp=
-      TensComp<S,transp<RC>,Which>;
+      TensorComp<S,transp<RC>,Which>;
     
     /// Base type
     using Base=
@@ -102,7 +99,7 @@ namespace maze
     
     /// Init from value
     INLINE_FUNCTION CUDA_HOST_DEVICE
-    explicit constexpr TensComp(const Index& i=0) : i(i)
+    explicit constexpr TensorComp(const Index& i=0) : i(i)
     {
     }
     
@@ -134,7 +131,7 @@ namespace maze
     
     /// Assignment operator
     INLINE_FUNCTION CUDA_HOST_DEVICE constexpr
-    TensComp& operator=(const Index& oth)
+    TensorComp& operator=(const Index& oth)
     {
       i=oth;
       
@@ -164,7 +161,7 @@ namespace maze
   								\
   /*! NAME component */						\
   using NAME=							\
-    TensComp<NAME ## Signature,ANY,0>;				\
+    TensorComp<NAME ## Signature,ANY,0>;				\
 								\
   DECLARE_COMPONENT_FACTORY(FACTORY,NAME)
   
@@ -178,7 +175,7 @@ namespace maze
   /*! NAME component */						\
   template <RwCl RC=ROW,					\
 	    int Which=0>					\
-  using NAME ## RC=TensComp<NAME ## Signature,RC,Which>;	\
+  using NAME ## RC=TensorComp<NAME ## Signature,RC,Which>;	\
 								\
   /*! Row kind of NAME component */				\
   using NAME ## Row=NAME ## RC<ROW,0>;				\

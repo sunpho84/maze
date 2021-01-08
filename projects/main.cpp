@@ -78,17 +78,17 @@ template <typename TC>
 struct SitesOrdering;
 
 template <typename...C>
-struct SitesOrdering<TensComps<C...>>
+struct SitesOrdering<TensorComps<C...>>
 {
   using Comps=
-    TensComps<C...>;
+    TensorComps<C...>;
   
   Comps sizes;
 
+  
   template <typename...D>
-  SitesOrdering(const TensComps<D...>& extSizes)
+  SitesOrdering(const TensorComps<D...>& extSizes)
   {
-    forEachInTuple(tupleFilter(sizes,)
     forEachInTuple(extSizes, [this](const auto& e){std::get<decltype(e)>(sizes)=e;});
   }
 };

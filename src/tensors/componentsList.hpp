@@ -14,7 +14,7 @@ namespace maze
 {
   /// Collection of components
   template <typename...Tc>
-  using TensComps=
+  using TensorComps=
     std::tuple<Tc...>;
   
   /// Returns the number of components of a tensComp
@@ -29,12 +29,12 @@ namespace maze
     /// Forward definition
     template <RwCl F,
 	      typename TC>
-    struct _TensCompsFilterRwCl;
+    struct _TensorCompsFilterRwCl;
     
     /// Cannot use directly the TupleFilter, because of some template template limitation
     template <RwCl F,
 	      typename...Tc>
-    struct _TensCompsFilterRwCl<F,TensComps<Tc...>>
+    struct _TensorCompsFilterRwCl<F,TensorComps<Tc...>>
     {
       /// Predicate to filter
       ///
@@ -46,7 +46,7 @@ namespace maze
       template <typename S,
 		RwCl RC,
 		int Which>
-      struct Filter<TensComp<S,RC,Which>>
+      struct Filter<TensorComp<S,RC,Which>>
       {
 	/// Predicate result, counting whether the type match
 	static constexpr
@@ -55,24 +55,48 @@ namespace maze
       };
       
       /// Returned type
-      typedef TupleFilter<Filter,TensComps<Tc...>> type;
+      typedef TupleFilter<Filter,TensorComps<Tc...>> type;
     };
   }
   
   /// Filter all Row components
   template <typename TC>
-  using TensCompsFilterRow=
-    typename impl::_TensCompsFilterRwCl<RwCl::ROW,TC>::type;
+  using TensorCompsFilterRow=
+    typename impl::_TensorCompsFilterRwCl<RwCl::ROW,TC>::type;
   
   /// Filter all Col components
   template <typename TC>
-  using TensCompsFilterCln=
-    typename impl::_TensCompsFilterRwCl<RwCl::CLN,TC>::type;
+  using TensorCompsFilterCln=
+    typename impl::_TensorCompsFilterRwCl<RwCl::CLN,TC>::type;
   
   /// Filter all Any components
   template <typename TC>
-  using TensCompsFilterAny=
-    typename impl::_TensCompsFilterRwCl<RwCl::ANY,TC>::type;
+  using TensorCompsFilterAny=
+    typename impl::_TensorCompsFilterRwCl<RwCl::ANY,TC>::type;
+  
+  /// Gets the dynamic components of a tensComps
+  template <typename TC>
+  constexpr decltype(auto) getDynamicCompsOfTensorComps(TC&& tc)
+  {
+    return tupleFilter<SizeIsKnownAtCompileTime<false>::t>(std::forward<TC>(tc));
+  }
+  
+  /// Gets the dynamic component types of a TensorComps
+  template <typename TC>
+  using GetDynamicCompsOfTensorComps=
+    decltype(getDynamicCompsOfTensorComps(TC{}));
+  
+  /// Gets the fixed size components of a tensComps
+  template <typename TC>
+  constexpr decltype(auto) getFixedSizeCompsOfTensorComps(TC&& tc)
+  {
+    return tupleFilter<SizeIsKnownAtCompileTime<true>::t>(std::forward<TC>(tc));
+  }
+  
+  /// Gets the fixed size component types of a TensorComps
+  template <typename TC>
+  using GetFixedSizeCompsOfTensorComps=
+    decltype(getFixedSizeCompsOfTensorComps(TC{}));
   
   /////////////////////////////////////////////////////////////////
   
@@ -82,7 +106,7 @@ namespace maze
     ///
     /// Actual implementation, forward declaration
     template <typename TC>
-    struct _TensCompsTransp;
+    struct _TensorCompsTransp;
     
     /// Transposes a list of components
     ///
@@ -90,18 +114,18 @@ namespace maze
     template <typename...S,
 	      RwCl...RC,
 	      int...Which>
-    struct _TensCompsTransp<TensComps<TensComp<S,RC,Which>...>>
+    struct _TensorCompsTransp<TensorComps<TensorComp<S,RC,Which>...>>
     {
       /// Resulting type
       using type=
-	TensComps<TensComp<S,transp<RC>,Which>...>;
+	TensorComps<TensorComp<S,transp<RC>,Which>...>;
     };
   }
   
   /// Transposes a list of components
   template <typename TC>
-  using TensCompsTransp=
-    typename impl::_TensCompsTransp<TC>::type;
+  using TensorCompsTransp=
+    typename impl::_TensorCompsTransp<TC>::type;
 }
 
 #endif
