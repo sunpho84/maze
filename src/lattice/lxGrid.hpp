@@ -90,6 +90,9 @@ namespace maze
     /// Grid volume
     const Index vol;
     
+    /// Half the grid volume
+    const Index volH;
+    
     /// Check if it has bulk
     const bool hasBulk;
     
@@ -105,6 +108,7 @@ namespace maze
       sizes(sizes),
       periodic(periodic),
       vol(this->computeVol()),
+      volH(vol/2),
       hasBulk(computeHasBulk()),
       bulkVol(computeBulkVol()),
       coordsProvider(*this)

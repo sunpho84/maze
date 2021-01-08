@@ -9,6 +9,7 @@
 
 #include <utilities/factorize.hpp>
 #include <utilities/math.hpp>
+#include <utilities/tuple.hpp>
 #include <utilities/valueWithExtreme.hpp>
 
 #endif

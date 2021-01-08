@@ -10,6 +10,7 @@
 #include <tensors/arithmeticTensor.hpp>
 #include <tensors/component.hpp>
 #include <tensors/componentSignature.hpp>
+#include <tensors/componentsList.hpp>
 #include <tensors/componentSize.hpp>
 
 #endif

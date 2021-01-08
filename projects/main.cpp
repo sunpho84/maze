@@ -74,6 +74,41 @@ struct IndexedGrid
   }
 };
 
+template <typename TC>
+struct SitesOrdering;
+
+template <typename...C>
+struct SitesOrdering<TensComps<C...>>
+{
+  using Comps=
+    TensComps<C...>;
+  
+  Comps sizes;
+
+  template <typename...D>
+  SitesOrdering(const TensComps<D...>& extSizes)
+  {
+    forEachInTuple(tupleFilter(sizes,)
+    forEachInTuple(extSizes, [this](const auto& e){std::get<decltype(e)>(sizes)=e;});
+  }
+};
+
+SitesOrdering<std::tuple<Geometry<4>::Parity>> a({});
+
+// X.X
+// .X.
+
+// XXX
+// ...
+
+// 012
+// 345
+
+// 0
+
+// rank,eo,block,blocked
+
+
 // /// Geometry for fused sites
 // template <int NDim>
 // struct FusedSitesGeometry

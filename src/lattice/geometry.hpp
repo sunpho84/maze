@@ -52,10 +52,14 @@ namespace maze
     const LocGrid locGrid;
     
     /// Local volume
-    const LocSite locVol=
+    const LocSite& locVol=
       locGrid.vol;
     
-    /// Parity of local sites
+    /// Half the local volume
+    const LocSite& locVolH=
+      locGrid.volH;
+    
+    /// Parity and eos index of local sites
     const Vector<Parity> locLxParityTable;
     
     /// Parity of a site, given its global coordinates
@@ -111,6 +115,9 @@ namespace maze
     {
       if((glbSizes%ranksSizes).sumAll())
 	CRASHER<<"Global sizes "<<glbSizes<<" incompatible with rank sizes "<<ranksSizes<<endl;
+      
+      if(locVolH*2!=locVol)
+	CRASHER<<"Local volume must be even, is "<<locVol<<endl;
     }
   };
 }
