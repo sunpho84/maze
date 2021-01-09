@@ -17,7 +17,7 @@ namespace maze
   /// Specify the size at compile time
   template <typename Size,
 	    Size SIZE=DYNAMIC>
-  struct TensCompSize
+  struct TensorCompSize
   {
     /// Value beyond end
     static constexpr Size sizeAtCompileTime=

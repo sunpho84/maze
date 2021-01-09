@@ -207,6 +207,10 @@ void inMain(int narg,char** arg)
   for(Geometry<4>::LocSite lx(0);lx<geometry.locVol;lx++)
     LOGGER<<geometry.parityOfLocLx(lx)<<endl;
   
+  Tensor<TensorComps<Compl>> t;
+  t[RE].eval()=1.0;
+  LOGGER<<t[RE].eval()<<endl;
+  
   // LxGrid<4,int> grid({4,2,2,2});
     
   //   LOGGER<<grid.computeSurfVol()<<endl;

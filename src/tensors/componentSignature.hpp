@@ -43,7 +43,7 @@ namespace maze
 #define DECLARE_COMPONENT_SIGNATURE(NAME,TYPE,LENGTH)		\
   /*! Signature for the NAME component */			\
   struct NAME ## Signature :					\
-    public TensCompSize<TYPE,LENGTH>				\
+    public TensorCompSize<TYPE,LENGTH>				\
   {								\
     /*! Type used for the index */				\
     using Index=						\

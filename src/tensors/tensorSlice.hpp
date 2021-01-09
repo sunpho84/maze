@@ -59,7 +59,7 @@ namespace maze
     // Expr<THIS>,
     ComplexSubscribe<THIS>,
   //AssignFromFundProvider<not IsConst,THIS,ExtFund>,
-    // ToFundCastProvider<CanBeCastToFund,THIS,ConstIf<IsConst,ExtFund>,FundCastByRefVal::BY_REF>,
+  //ToFundCastProvider<CanBeCastToFund,THIS,ConstIf<IsConst,ExtFund>,FundCastByRefVal::BY_REF>,
     TensorSliceFeat<IsTensorSlice,THIS>
   {
     /// Keep note of the template par
