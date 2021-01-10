@@ -74,26 +74,31 @@ struct IndexedGrid
   }
 };
 
-template <typename TC>
+template <typename Lx,
+	  typename TC>
 struct SitesOrdering;
 
-template <typename...C>
-struct SitesOrdering<TensorComps<C...>>
+template <typename Lx,
+	  typename...C>
+struct SitesOrdering<Lx,TensorComps<C...>>
 {
   using Comps=
     TensorComps<C...>;
   
-  Comps sizes;
-
+  // Comps sizes;
   
-  template <typename...D>
-  SitesOrdering(const TensorComps<D...>& extSizes)
+  Tensor<Comps,Lx> locLxOfSite;
+  
+  template <typename...Args>
+  SitesOrdering(Args&&...args) : locLxOfSite(std::forward<Args>(args)...)
   {
-    forEachInTuple(extSizes, [this](const auto& e){std::get<decltype(e)>(sizes)=e;});
+    
+    // forEachInTuple(extSizes, [this](const auto& e){std::get<decltype(e)>(sizes)=e;});
   }
 };
 
-SitesOrdering<std::tuple<Geometry<4>::Parity>> a({});
+DECLARE_COMPONENT(EosSite,int64_t,DYNAMIC,eosSite);
+
 
 // X.X
 // .X.
@@ -210,6 +215,16 @@ void inMain(int narg,char** arg)
   Tensor<TensorComps<Compl>> t;
   t[RE].eval()=1.0;
   LOGGER<<t[RE].eval()<<endl;
+  
+  /////////////////////////////////////////////////////////////////
+  
+  SitesOrdering<Geometry<4>::LocSite,TensorComps<Geometry<4>::Parity,EosSite>> a(static_cast<EosSite>(geometry.locVolH));
+  
+  LOGGER<<"/////////////////////////////////////////////////////////////////"<<endl;
+  
+  for(Geometry<4>::Parity par(0);par<2;par++)
+  for(EosSite eos(0);eos<geometry.locVolH;eos++)
+    LOGGER<<a.locLxOfSite[par][eos].eval()<<endl;
   
   // LxGrid<4,int> grid({4,2,2,2});
     

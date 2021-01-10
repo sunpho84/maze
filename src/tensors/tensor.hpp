@@ -332,6 +332,15 @@ namespace maze
     {
     }
     
+    /// Initialize the tensor when sizes are passed as a TensorComps
+    template <typename...C>
+    CUDA_HOST_DEVICE
+    Tensor(const TensorComps<C...>& tc) :
+      Tensor(std::get<C>(tc)...)
+    {
+    }
+    
+    
     /// Move constructor
     CUDA_HOST_DEVICE
     Tensor(Tensor<TensorComps<TC...>,Fund,SL>&& oth) : dynamicSizes(oth.dynamicSizes),data(std::move(oth.data))
