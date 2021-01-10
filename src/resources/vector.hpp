@@ -36,6 +36,27 @@ namespace maze
       return data[i];
     }
     
+    /// Find last where occurring
+    template <typename F>
+    size_t lastPositionWhere(F&& f) const
+    {
+      /// Result
+      size_t res=nEl;
+      
+      while((--res)<nEl and not f(data[res]));
+      
+      return std::min(res,nEl);
+    }
+    
+    /// Find last element where occurrs
+    template <typename F>
+    const E& lastElementWhere(F&& f) const
+    {
+      return data[lastPositionWhere(std::forward<F>(f))];
+    }
+    
+    PROVIDE_ALSO_NON_CONST_METHOD(lastElementWhere);
+    
     /// Copy constructor
     Vector(const Vector& oth) : Vector(oth.nEl)
     {

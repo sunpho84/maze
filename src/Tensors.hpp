@@ -13,6 +13,7 @@
 #include <tensors/componentSignature.hpp>
 #include <tensors/componentsList.hpp>
 #include <tensors/componentSize.hpp>
+#include <tensors/loopOnAllComponentsValues.hpp>
 #include <tensors/tensor.hpp>
 #include <tensors/tensorDecl.hpp>
 #include <tensors/tensorSlice.hpp>

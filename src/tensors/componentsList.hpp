@@ -1,7 +1,9 @@
 #ifndef _COMPONENTS_LIST_HPP
 #define _COMPONENTS_LIST_HPP
 
-#include <tuple>
+#ifdef HAVE_CONFIG_H
+# include "config.hpp"
+#endif
 
 /// \file componentsList.hpp
 ///

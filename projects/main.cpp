@@ -222,6 +222,21 @@ void inMain(int narg,char** arg)
   
   LOGGER<<"/////////////////////////////////////////////////////////////////"<<endl;
   
+  loopOnAllComponentsValues(a.locLxOfSite,
+			    [&a](auto& id,
+				 const TensorComps<Geometry<4>::Parity,EosSite>& comps)
+			    {
+			      const Geometry<4>::Parity& parity=
+				std::get<Geometry<4>::Parity>(comps);
+			      
+			      const EosSite& eosSite=
+				std::get<EosSite>(comps);
+			      
+			      a.locLxOfSite.data.data.data[id]=eosSite+parity;
+			      
+			      LOGGER<<"Decompose: "<<id<<", eos: "<<eosSite<<", par: "<<parity<<endl;
+			    });
+  
   for(Geometry<4>::Parity par(0);par<2;par++)
   for(EosSite eos(0);eos<geometry.locVolH;eos++)
     LOGGER<<a.locLxOfSite[par][eos].eval()<<endl;
