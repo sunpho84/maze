@@ -32,7 +32,7 @@ namespace maze
     }
     
     /// Homoegeneus initialization
-    static constexpr Coords getAll(const int& V)
+    static constexpr Coords getAll(const int& V=1)
     {
       /// Result
       Coords out{};
@@ -123,6 +123,17 @@ namespace maze
       
       return coordsProd;
     }
+    
+    /// Returns a versor
+    static Coords<NDim> versor(int mu)
+    {
+      /// Result
+      Coords<NDim> v{};
+      
+      v[mu]=1;
+      
+      return v;
+    }
   };
   
   /// Output a coord
@@ -148,7 +159,7 @@ namespace maze
   constexpr Coords<NDim> noDimensions=
 	Coords<NDim>::getAll(0);
   
-  /// all directions but a given one
+  /// All directions but a given one
   template <int NDim,
 	    int Mu>
   constexpr Coords<NDim> allDimensionsBut=

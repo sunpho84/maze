@@ -89,8 +89,12 @@ struct SitesOrdering<Lx,TensorComps<C...>>
   
   Tensor<Comps,Lx> locLxOfSite;
   
+  Vector<Comps> siteOfLocLx;
+  
   template <typename...Args>
-  SitesOrdering(Args&&...args) : locLxOfSite(std::forward<Args>(args)...)
+  SitesOrdering(Args&&...args) :
+    locLxOfSite(std::forward<Args>(args)...),
+    siteOfLocLx(locLxOfSite.data.getSize()) // hack
   {
     
     // forEachInTuple(extSizes, [this](const auto& e){std::get<decltype(e)>(sizes)=e;});
@@ -200,105 +204,156 @@ void inMain(int narg,char** arg)
 {
   static constexpr int NDim=4;
   
-  Geometry<NDim> geometry({4,4,4,4},{2,2,2,1});
+  const Coords<NDim> glbSizes{4,4,4,4};
+  const Coords<NDim> nRanksPerDim{2,1,1,1};
   
-  LOGGER<<allDimensions<NDim><<endl;
-  LOGGER<<allDimensionsBut<NDim,0><<endl;
-  LOGGER<<"Bulk local volume: "<<geometry.locGrid.bulkVol<<" expected: "<<14*14*14*32<<endl;
+  Geometry<NDim> geometry(glbSizes,nRanksPerDim);
+  
+  // LOGGER<<allDimensions<NDim><<endl;
+  // LOGGER<<allDimensionsBut<NDim,0><<endl;
+  // LOGGER<<"Bulk local volume: "<<geometry.locGrid.bulkVol<<" expected: "<<14*14*14*32<<endl;
   //Geometry<NDim> geometry({2,2,2,2},{2,1,1,1});
   
   //FusedSitesGeometry<NDim> fGeom(geometry,{1,2,2,2});
   
-  LOGGER<<geometry.glbCoordsOfLocLx(Geometry<NDim>::locSite(3))<<endl;
+  // LOGGER<<geometry.glbCoordsOfLocLx(Geometry<NDim>::locSite(3))<<endl;
   
-  for(Geometry<NDim>::LocSite lx(0);lx<geometry.locVol;lx++)
-    LOGGER<<geometry.parityOfLocLx(lx)<<endl;
+  // for(Geometry<NDim>::LocSite lx(0);lx<geometry.locVol;lx++)
+  //   LOGGER<<geometry.parityOfLocLx(lx)<<endl;
   
-  Tensor<TensorComps<Compl>> t;
-  t[RE].eval()=1.0;
-  LOGGER<<t[RE].eval()<<endl;
+  // Tensor<TensorComps<Compl>> t;
+  // t[RE].eval()=1.0;
+  // LOGGER<<t[RE].eval()<<endl;
   
   /////////////////////////////////////////////////////////////////
   
-  using LocSite=
+    using LocSite=
     Geometry<NDim>::LocSite;
   
   using Parity=
     Geometry<NDim>::Parity;
   
+  const EosSite locVolh(geometry.locVolH);
+  
+  LOGGER<<"/////////////////////////////////////////////////////////////////"<<endl;
+
+  /// Initializer for a even/odd split index
+  struct EosIndexInitializer
+  {
+    /// Reference geometry
+    const Geometry<NDim>& geo;
+    
+    /// Even/Odd split dimension
+    const int eoSplitDimension;
+    
+    /// Sizes of the even/odd split grid
+    const Coords<NDim> locEoSizes;
+    
+    /// Even/Odd split grid grouping two sites
+    const LxGrid<NDim,EosSite,UseHashedCoords::HASHED> eosGrid;
+    
+    /// Constructor
+    EosIndexInitializer(const Geometry<NDim>& geo) :
+      geo(geo),
+      eoSplitDimension(geo.fastestLocalEvenDimension()),
+      locEoSizes(geo.locSizes/(Coords<NDim>::versor(eoSplitDimension)+Coords<NDim>::getAll(1))),
+      eosGrid(locEoSizes,geo.isDimensionLocal)
+    {
+      LOGGER<<"loceo sizes: "<<locEoSizes<<endl;
+    }
+    
+    /// Computes the two local sites of a given eosSite
+    std::array<LocSite,2> locLxPairOfEosSite(const EosSite& eosSite) const
+    {
+      /// Coordinates in the eos grid
+      const Coords<NDim> eosCoords=
+	eosGrid.coordsOfLx(eosSite);
+      
+      /// Result
+      std::array<LocSite,2> out;
+      
+      for(int i=0;i<2;i++)
+	{
+	  /// Coordinates
+	  Coords<NDim> lxCoords=
+	    eosCoords;
+	  
+	  // Double in the eo dimension and increase in turn
+	  lxCoords[eoSplitDimension]=
+	    2*lxCoords[eoSplitDimension]+i;
+	  
+	  /// Local site
+	  const LocSite locLx=
+	    geo.computeLxOfLocCoords(lxCoords);
+	  
+	  /// Parity of the site
+	  const Parity par=
+	    geo.parityOfLocLx(locLx);
+	  
+	  out[par]=locLx;
+	}
+      
+      return out;
+    }
+  };
+  
+  EosIndexInitializer eosIndexInitialzier(geometry);
+  
   using ParityEos=
     TensorComps<Parity,EosSite>;
   
-  const EosSite locVolh(geometry.locVolH);
-  
   SitesOrdering<LocSite,ParityEos> eosOrder(static_cast<EosSite>(geometry.locVolH));
   
-  LOGGER<<"/////////////////////////////////////////////////////////////////"<<endl;
-  
-  int lastEvenDimension=NDim;
-  for(int mu=0;mu<NDim;mu++)
-    if(geometry.locGrid.sizes[mu]%2==0)
-      lastEvenDimension=mu;
-  if(lastEvenDimension==NDim)
-    CRASHER<<"No even dimension found"<<endl;
-  
-  Coords<NDim> loceoSizes=
-    geometry.locGrid.sizes;
-  loceoSizes[lastEvenDimension]/=2;
-  
-  LOGGER<<"loceo sizes: "<<loceoSizes<<endl;
-  
-  LxGrid<NDim,EosSite,UseHashedCoords::HASHED> eosGrid(loceoSizes,geometry.isDimensionLocal);
-  for(EosSite eosSite(0);eosSite<locVolh;eosSite++)
+  for(EosSite eos(0);eos<locVolh;eos++)
     {
-      const Coords<NDim> eosCoords=eosGrid.coordsOfLx(eosSite);
-      Coords<NDim> lxCoordsA=
-	eosCoords;
-      lxCoordsA[lastEvenDimension]*=2;
-      Coords<NDim> lxCoordsB=
-	lxCoordsA;
-      lxCoordsB[lastEvenDimension]++;
+      const auto locLxPair=
+	eosIndexInitialzier.locLxPairOfEosSite(eos);
       
-      const LocSite locLxA=
-	geometry.locGrid.computeLxOfCoords(lxCoordsA);
-      
-      const LocSite locLxB=
-	geometry.locGrid.computeLxOfCoords(lxCoordsB);
-      
-      const Parity parA=
-	geometry.parityOfLocLx(locLxA);
-      
-      const Parity parB=
-	geometry.parityOfLocLx(locLxB);
-      
-      eosOrder.locLxOfSite[parA][eosSite].eval()=locLxA;
-      eosOrder.locLxOfSite[parB][eosSite].eval()=locLxB;
+      for(Parity par(0);par<2;par++)
+	{
+	  const LocSite& locLx=
+	    locLxPair[par];
+	  
+	  eosOrder.locLxOfSite[par][eos].eval()=
+	    locLx;
+	  
+	  eosOrder.siteOfLocLx[locLx]=
+	    ParityEos{par,eos};
+	}
     }
   
-  /// ora da sistemare
-    
-  for(Parity par(0);par<2;par++)
-    for(EosSite eos(0);eos<locVolh;eos++)
-      LOGGER<<"Parity "<<par<<" , eos: "<<eos<<" , lx: "<<eosOrder.locLxOfSite[par][eos].eval()<<endl;
+  for(LocSite locLx(0);locLx<geometry.locVol;locLx++)
+    {
+      const ParityEos& parityEos=
+	eosOrder.siteOfLocLx[locLx];
+      
+      const Parity& par=
+	std::get<Parity>(parityEos);
+      
+      const EosSite& eosSite=
+	std::get<EosSite>(parityEos);
+      
+      LOGGER<<locLx<<" "<<par<<" , eos: "<<eosSite<<endl;
+    }
   
-  loopOnAllComponentsValues(eosOrder.locLxOfSite,
-			    [&eosOrder](auto& id,
-				 const ParityEos& comps)
-			    {
-			      const Geometry<NDim>::Parity& parity=
-				std::get<Geometry<NDim>::Parity>(comps);
+  // loopOnAllComponentsValues(eosOrder.locLxOfSite,
+  // 			    [&eosOrder](auto& id,
+  // 				 const ParityEos& comps)
+  // 			    {
+  // 			      const Geometry<NDim>::Parity& parity=
+  // 				std::get<Geometry<NDim>::Parity>(comps);
 			      
-			      const EosSite& eosSite=
-				std::get<EosSite>(comps);
+  // 			      const EosSite& eosSite=
+  // 				std::get<EosSite>(comps);
 			      
-			      eosOrder.locLxOfSite.data.data.data[id]=eosSite+parity;
+  // 			      eosOrder.locLxOfSite.data.data.data[id]=eosSite+parity;
 			      
-			      LOGGER<<"Decompose: "<<id<<", eos: "<<eosSite<<", par: "<<parity<<endl;
-			    });
+  // 			      LOGGER<<"Decompose: "<<id<<", eos: "<<eosSite<<", par: "<<parity<<endl;
+  // 			    });
   
-  for(Geometry<NDim>::Parity par(0);par<2;par++)
-  for(EosSite eos(0);eos<geometry.locVolH;eos++)
-    LOGGER<<eosOrder.locLxOfSite[par][eos].eval()<<endl;
+  // for(Geometry<NDim>::Parity par(0);par<2;par++)
+  // for(EosSite eos(0);eos<geometry.locVolH;eos++)
+  //   LOGGER<<eosOrder.locLxOfSite[par][eos].eval()<<endl;
   
   // LxGrid<NDim,int> grid({4,2,2,2});
     

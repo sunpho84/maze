@@ -47,6 +47,10 @@ namespace maze
     /// Global site grid
     const GlbGrid glbGrid;
     
+    /// Global sizes
+    const Coords<NDim>& glbSizes=
+	    glbGrid.sizes;
+    
     /// Global volume
     const GlbSite& glbVol=
       glbGrid.vol;
@@ -54,11 +58,20 @@ namespace maze
     /// Ranks grid
     const RanksGrid ranksGrid;
     
+    /// Number of ranks per dimension
+    const Coords<NDim>& nRanksPerDim=
+	    ranksGrid.sizes;
+    
     /// Local dimensions
+#warning change again name
     const Coords<NDim> isDimensionLocal;
     
     /// Local sites grid
     const LocGrid locGrid;
+    
+    /// Local sizes
+    const Coords<NDim>& locSizes=
+	    locGrid.sizes;
     
     /// Local volume
     const LocSite& locVol=
@@ -89,9 +102,15 @@ namespace maze
     }
     
     /// Compute explicitly the parity of local sites
-    Parity computeParityOfLoclx(const LocSite& id) const
+    Parity computeParityOfLocLx(const LocSite& id) const
     {
       return parityOfGlbCoords(glbCoordsOfLocLx(id));
+    }
+    
+    /// Compute the lx site of a given set of coords
+    LocSite computeLxOfLocCoords(const Coords<NDim>& coords) const
+    {
+      return locGrid.computeLxOfCoords(coords);
     }
     
     /// Compute global coordinates, given local site and rank
@@ -113,6 +132,24 @@ namespace maze
       return glbCoords;
     }
     
+    /// Return fasted dimension of even local size
+    int fastestLocalEvenDimension() const
+    {
+      /// Result
+      int res=
+	NDim;
+      
+      // Find last even dimension
+      for(int mu=0;mu<NDim;mu++)
+	if(locSizes[mu]%2==0)
+	  res=mu;
+      
+      if(res==NDim)
+	CRASHER<<"No even dimension found"<<endl;
+      
+      return res;
+    }
+    
     /// Constructor
     Geometry(const Coords<NDim>& glbSizes,
 	     const Coords<NDim>& ranksSizes) :
@@ -120,7 +157,7 @@ namespace maze
       ranksGrid(ranksSizes,allDimensions<NDim>),
       isDimensionLocal(ranksSizes==1),
       locGrid(glbSizes/ranksSizes,isDimensionLocal),
-      locLxParityTable(locVol,[this](const size_t& lx){return this->computeParityOfLoclx(locSite(lx));})
+      locLxParityTable(locVol,[this](const size_t& lx){return this->computeParityOfLocLx(locSite(lx));})
     {
       if((glbSizes%ranksSizes).sumAll())
 	CRASHER<<"Global sizes "<<glbSizes<<" incompatible with rank sizes "<<ranksSizes<<endl;
