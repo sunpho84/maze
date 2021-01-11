@@ -42,7 +42,7 @@ namespace maze
   /// Returns the true logger or the dummy one depending if on master rank
   inline std::ofstream& logger()
   {
-    if(isMasterRank())
+    if(thisRankPrints())
       return resources::logger;
     else
       return resources::dummyLogger;
@@ -51,7 +51,7 @@ namespace maze
   /// Returns the error logger or the dummy one depending if on master rank
   inline std::ofstream& errLogger()
   {
-    if(isMasterRank())
+    if(thisRankPrints())
       return resources::errLogger;
     else
       return resources::dummyLogger;

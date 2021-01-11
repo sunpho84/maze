@@ -27,6 +27,9 @@ namespace maze
     
     /// Total number of ranks
     EXTERN_RANK int nRanks INIT_RANK_TO(1);
+    
+    /// Rank that prints
+    EXTERN_RANK int printingRank INIT_RANK_TO(0);
   }
   
   /// Returns current rank
@@ -45,6 +48,24 @@ namespace maze
   inline bool isMasterRank()
   {
     return thisRank()==0;
+  }
+  
+  /// Returns the printing rank
+  inline const int& getPrintingRank()
+  {
+    return resources::printingRank;
+  }
+  
+  /// Set the printing rank
+  inline void setPrintingRank(const int& i)
+  {
+    resources::printingRank=i;
+  }
+  
+  /// Check if this rank is printing
+  inline bool thisRankPrints()
+  {
+    return getPrintingRank()==thisRank();
   }
   
   /// Initialize MPI

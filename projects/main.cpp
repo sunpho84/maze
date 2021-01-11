@@ -204,8 +204,8 @@ void inMain(int narg,char** arg)
 {
   static constexpr int NDim=4;
   
-  const Coords<NDim> glbSizes{4,4,4,4};
-  const Coords<NDim> nRanksPerDim{2,1,1,1};
+  const Coords<NDim> glbSizes{1,1,2,6};
+  const Coords<NDim> nRanksPerDim{1,1,1,2};
   
   Geometry<NDim> geometry(glbSizes,nRanksPerDim);
   
@@ -259,6 +259,7 @@ void inMain(int narg,char** arg)
       locEoSizes(geo.locSizes/(Coords<NDim>::versor(eoSplitDimension)+Coords<NDim>::getAll(1))),
       eosGrid(locEoSizes,geo.isDimensionLocal)
     {
+      LOGGER<<"e/o split dimension: "<<eoSplitDimension<<endl;
       LOGGER<<"loceo sizes: "<<locEoSizes<<endl;
     }
     
@@ -322,6 +323,10 @@ void inMain(int narg,char** arg)
 	}
     }
   
+  setPrintingRank(0);
+  
+  LOGGER<<"/////////////////////////////////////////////////////////////////"<<endl;
+  
   for(LocSite locLx(0);locLx<geometry.locVol;locLx++)
     {
       const ParityEos& parityEos=
@@ -335,6 +340,12 @@ void inMain(int narg,char** arg)
       
       LOGGER<<locLx<<" "<<par<<" , eos: "<<eosSite<<endl;
     }
+  
+  LOGGER<<"/////////////////////////////////////////////////////////////////"<<endl;
+  
+  for(Parity par(0);par<2;par++)
+    for(EosSite eos(0);eos<locVolh;eos++)
+      LOGGER<<par<<" , eos: "<<eos<<" : lx "<<eosOrder.locLxOfSite[par][eos].eval()<<endl;
   
   // loopOnAllComponentsValues(eosOrder.locLxOfSite,
   // 			    [&eosOrder](auto& id,
