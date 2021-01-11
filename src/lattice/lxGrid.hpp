@@ -160,7 +160,7 @@ namespace maze
     /// Computes the lexicographic index
     Index computeLxOfCoords(const Coords<NDim>& coords) const
     {
-      Index out=0;
+      Index out(0);
       
       for(int mu=0;mu<NDim;mu++)
 	out=out*sizes[mu]+coords[mu];

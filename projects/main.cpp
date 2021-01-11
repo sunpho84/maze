@@ -198,18 +198,20 @@ DECLARE_COMPONENT(EosSite,int64_t,DYNAMIC,eosSite);
 
 void inMain(int narg,char** arg)
 {
-  Geometry<4> geometry({4,4,4,4},{2,2,2,1});
+  static constexpr int NDim=4;
   
-  LOGGER<<allDimensions<4><<endl;
-  LOGGER<<allDimensionsBut<4,0><<endl;
+  Geometry<NDim> geometry({4,4,4,4},{2,2,2,1});
+  
+  LOGGER<<allDimensions<NDim><<endl;
+  LOGGER<<allDimensionsBut<NDim,0><<endl;
   LOGGER<<"Bulk local volume: "<<geometry.locGrid.bulkVol<<" expected: "<<14*14*14*32<<endl;
-  //Geometry<4> geometry({2,2,2,2},{2,1,1,1});
+  //Geometry<NDim> geometry({2,2,2,2},{2,1,1,1});
   
-  //FusedSitesGeometry<4> fGeom(geometry,{1,2,2,2});
+  //FusedSitesGeometry<NDim> fGeom(geometry,{1,2,2,2});
   
-  LOGGER<<geometry.glbCoordsOfLocLx(Geometry<4>::locSite(3))<<endl;
+  LOGGER<<geometry.glbCoordsOfLocLx(Geometry<NDim>::locSite(3))<<endl;
   
-  for(Geometry<4>::LocSite lx(0);lx<geometry.locVol;lx++)
+  for(Geometry<NDim>::LocSite lx(0);lx<geometry.locVol;lx++)
     LOGGER<<geometry.parityOfLocLx(lx)<<endl;
   
   Tensor<TensorComps<Compl>> t;
@@ -218,35 +220,92 @@ void inMain(int narg,char** arg)
   
   /////////////////////////////////////////////////////////////////
   
-  SitesOrdering<Geometry<4>::LocSite,TensorComps<Geometry<4>::Parity,EosSite>> a(static_cast<EosSite>(geometry.locVolH));
+  using LocSite=
+    Geometry<NDim>::LocSite;
+  
+  using Parity=
+    Geometry<NDim>::Parity;
+  
+  using ParityEos=
+    TensorComps<Parity,EosSite>;
+  
+  const EosSite locVolh(geometry.locVolH);
+  
+  SitesOrdering<LocSite,ParityEos> eosOrder(static_cast<EosSite>(geometry.locVolH));
   
   LOGGER<<"/////////////////////////////////////////////////////////////////"<<endl;
   
-  loopOnAllComponentsValues(a.locLxOfSite,
-			    [&a](auto& id,
-				 const TensorComps<Geometry<4>::Parity,EosSite>& comps)
+  int lastEvenDimension=NDim;
+  for(int mu=0;mu<NDim;mu++)
+    if(geometry.locGrid.sizes[mu]%2==0)
+      lastEvenDimension=mu;
+  if(lastEvenDimension==NDim)
+    CRASHER<<"No even dimension found"<<endl;
+  
+  Coords<NDim> loceoSizes=
+    geometry.locGrid.sizes;
+  loceoSizes[lastEvenDimension]/=2;
+  
+  LOGGER<<"loceo sizes: "<<loceoSizes<<endl;
+  
+  LxGrid<NDim,EosSite,UseHashedCoords::HASHED> eosGrid(loceoSizes,geometry.isDimensionLocal);
+  for(EosSite eosSite(0);eosSite<locVolh;eosSite++)
+    {
+      const Coords<NDim> eosCoords=eosGrid.coordsOfLx(eosSite);
+      Coords<NDim> lxCoordsA=
+	eosCoords;
+      lxCoordsA[lastEvenDimension]*=2;
+      Coords<NDim> lxCoordsB=
+	lxCoordsA;
+      lxCoordsB[lastEvenDimension]++;
+      
+      const LocSite locLxA=
+	geometry.locGrid.computeLxOfCoords(lxCoordsA);
+      
+      const LocSite locLxB=
+	geometry.locGrid.computeLxOfCoords(lxCoordsB);
+      
+      const Parity parA=
+	geometry.parityOfLocLx(locLxA);
+      
+      const Parity parB=
+	geometry.parityOfLocLx(locLxB);
+      
+      eosOrder.locLxOfSite[parA][eosSite].eval()=locLxA;
+      eosOrder.locLxOfSite[parB][eosSite].eval()=locLxB;
+    }
+  
+  /// ora da sistemare
+    
+  for(Parity par(0);par<2;par++)
+    for(EosSite eos(0);eos<locVolh;eos++)
+      LOGGER<<"Parity "<<par<<" , eos: "<<eos<<" , lx: "<<eosOrder.locLxOfSite[par][eos].eval()<<endl;
+  
+  loopOnAllComponentsValues(eosOrder.locLxOfSite,
+			    [&eosOrder](auto& id,
+				 const ParityEos& comps)
 			    {
-			      const Geometry<4>::Parity& parity=
-				std::get<Geometry<4>::Parity>(comps);
+			      const Geometry<NDim>::Parity& parity=
+				std::get<Geometry<NDim>::Parity>(comps);
 			      
 			      const EosSite& eosSite=
 				std::get<EosSite>(comps);
 			      
-			      a.locLxOfSite.data.data.data[id]=eosSite+parity;
+			      eosOrder.locLxOfSite.data.data.data[id]=eosSite+parity;
 			      
 			      LOGGER<<"Decompose: "<<id<<", eos: "<<eosSite<<", par: "<<parity<<endl;
 			    });
   
-  for(Geometry<4>::Parity par(0);par<2;par++)
+  for(Geometry<NDim>::Parity par(0);par<2;par++)
   for(EosSite eos(0);eos<geometry.locVolH;eos++)
-    LOGGER<<a.locLxOfSite[par][eos].eval()<<endl;
+    LOGGER<<eosOrder.locLxOfSite[par][eos].eval()<<endl;
   
-  // LxGrid<4,int> grid({4,2,2,2});
+  // LxGrid<NDim,int> grid({4,2,2,2});
     
   //   LOGGER<<grid.computeSurfVol()<<endl;
     
-  //   IndexedGrid<4,int> boh(grid,[](const int& i){return i;},HowToIndex::DEDUCE_INDEX_FROM_LX);
-  //   IndexedGrid<4,int> leb(grid,LxOfLebesgueCalculator<4,int>(grid),HowToIndex::DEDUCE_LX_FROM_INDEX);
+  //   IndexedGrid<NDim,int> boh(grid,[](const int& i){return i;},HowToIndex::DEDUCE_INDEX_FROM_LX);
+  //   IndexedGrid<NDim,int> leb(grid,LxOfLebesgueCalculator<NDim,int>(grid),HowToIndex::DEDUCE_LX_FROM_INDEX);
     
   //   for(int i=0;i<grid.vol;i++)
   //     LOGGER<<i<<" "<<leb.idOfLx[i]<<endl;

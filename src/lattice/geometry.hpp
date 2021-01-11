@@ -21,7 +21,16 @@ namespace maze
     DECLARE_COMPONENT(GlbSite,int64_t,DYNAMIC,glbSite);
     DECLARE_COMPONENT(LocSite,int64_t,DYNAMIC,locSite);
     DECLARE_COMPONENT(Rank,int32_t,DYNAMIC,rank);
-    DECLARE_COMPONENT(Parity,char,2,eoDiscriminator);
+    DECLARE_COMPONENT(Parity,int8_t,2,eoDiscriminator);
+    
+    /// Print 0 or 1 for parity (which is of unprintable type)
+    INLINE_FUNCTION
+    friend std::ostream& operator<<(std::ostream& os,
+				    const Parity& par)
+    {
+      return
+	os<<static_cast<int>(par);
+    }
     
     /// Global lattice grid
     using GlbGrid=
@@ -46,7 +55,7 @@ namespace maze
     const RanksGrid ranksGrid;
     
     /// Local dimensions
-    const Coords<NDim> localDimensions;
+    const Coords<NDim> isDimensionLocal;
     
     /// Local sites grid
     const LocGrid locGrid;
@@ -69,12 +78,12 @@ namespace maze
     }
     
     /// Compute the parity of a global site
-    bool parityOfGlbLx(const GlbSite& id) const
+    Parity parityOfGlbLx(const GlbSite& id) const
     {
       return parityOfGlbCoords(glbGrid.computeCoordsOfLx(id));
     }
     /// Returns the parity of a local site from the lookup table
-    bool parityOfLocLx(const LocSite& id) const
+    Parity parityOfLocLx(const LocSite& id) const
     {
       return locLxParityTable[id];
     }
@@ -109,8 +118,8 @@ namespace maze
 	     const Coords<NDim>& ranksSizes) :
       glbGrid(glbSizes,allDimensions<NDim>),
       ranksGrid(ranksSizes,allDimensions<NDim>),
-      localDimensions(ranksSizes==1),
-      locGrid(glbSizes/ranksSizes,localDimensions),
+      isDimensionLocal(ranksSizes==1),
+      locGrid(glbSizes/ranksSizes,isDimensionLocal),
       locLxParityTable(locVol,[this](const size_t& lx){return this->computeParityOfLoclx(locSite(lx));})
     {
       if((glbSizes%ranksSizes).sumAll())

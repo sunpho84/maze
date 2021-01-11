@@ -382,6 +382,7 @@ namespace maze
     // }
     
     /// Provide trivial access to the fundamental data
+    INLINE_FUNCTION
     decltype(auto) trivialAccess(const Index& i)
       const
     {
