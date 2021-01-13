@@ -16,8 +16,8 @@ namespace maze
 #ifdef USE_MPI
     int provided;
     MPI_Init_thread(&narg,&arg,MPI_THREAD_SERIALIZED,&provided);
-    MPI_Comm_rank(MPI_COMM_WORLD,&resources::thisRank);
-    MPI_Comm_size(MPI_COMM_WORLD,&resources::nRanks);
+    MPI_Comm_rank(MPI_COMM_WORLD,&resources::thisRank());
+    MPI_Comm_size(MPI_COMM_WORLD,&resources::nRanks());
 #endif
   }
   

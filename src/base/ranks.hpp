@@ -11,6 +11,8 @@
 
 #include <mpi.h>
 
+#include <tensors/component.hpp>
+
 #ifndef EXTERN_RANK
 # define EXTERN_RANK extern
 #define INIT_RANK_TO(...)
@@ -20,26 +22,28 @@
 
 namespace maze
 {
+  DECLARE_COMPONENT(MpiRank,int32_t,DYNAMIC,mpiRank);
+  
   namespace resources
   {
     /// Current rank
-    EXTERN_RANK int thisRank INIT_RANK_TO(0);
+    EXTERN_RANK MpiRank thisRank INIT_RANK_TO(0);
     
     /// Total number of ranks
-    EXTERN_RANK int nRanks INIT_RANK_TO(1);
+    EXTERN_RANK MpiRank nRanks INIT_RANK_TO(1);
     
     /// Rank that prints
-    EXTERN_RANK int printingRank INIT_RANK_TO(0);
+    EXTERN_RANK MpiRank printingRank INIT_RANK_TO(0);
   }
   
   /// Returns current rank
-  inline const int& thisRank()
+  inline const MpiRank& thisRank()
   {
     return resources::thisRank;
   }
   
   /// Returns the total number of ranks
-  inline const int& nRranks()
+  inline const MpiRank& nRranks()
   {
     return resources::nRanks;
   }
@@ -51,13 +55,13 @@ namespace maze
   }
   
   /// Returns the printing rank
-  inline const int& getPrintingRank()
+  inline const MpiRank& getPrintingRank()
   {
     return resources::printingRank;
   }
   
   /// Set the printing rank
-  inline void setPrintingRank(const int& i)
+  inline void setPrintingRank(const MpiRank& i)
   {
     resources::printingRank=i;
   }

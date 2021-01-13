@@ -23,7 +23,7 @@ namespace maze
 	   "$ gdb -p %d\n"
 	   "$ set flag=1\n"
 	   "$ continue\n",
-	   thisRank(),
+	   (int)(thisRank()),
 	   &flag,
 	   getpid());
     
