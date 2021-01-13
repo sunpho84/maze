@@ -120,6 +120,17 @@ namespace maze
 	i;
     }
     
+    /// Convert to actual reference with const attribute
+    INLINE_FUNCTION constexpr CUDA_HOST_DEVICE
+    const Index& operator()()
+      const
+    {
+      return
+	i;
+    }
+    
+    PROVIDE_ALSO_NON_CONST_METHOD_GPU(operator());
+    
     /// Transposed index
     INLINE_FUNCTION CUDA_HOST_DEVICE constexpr
     auto transp()
