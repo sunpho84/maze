@@ -39,13 +39,17 @@ Vector<I> transposeShuffler(const Vector<I>& shuffler)
 enum HowToIndex{DEDUCE_INDEX_FROM_LX,DEDUCE_LX_FROM_INDEX};
 
 /// Grid with a specific index
-template <int NDim,
+template <int _NDims,
 	  typename Index,
 	  UseHashedCoords UHC>
 struct IndexedGrid
 {
+  /// Number of dimensions
+ static constexpr int nDims=
+   _NDims;
+  
   /// Grid of reference
-  const LxGrid<NDim,Index,UHC>& grid;
+  const HCube<nDims,Index,UHC>& grid;
   
   /// Index of a given lexicographic site
   Vector<Index> idOfLx;
@@ -55,7 +59,7 @@ struct IndexedGrid
   
   /// Constructor taking a reference grid and a function to compute id from lx
   template <typename F>
-  IndexedGrid(const LxGrid<NDim,Index,UHC>& grid,
+  IndexedGrid(const HCube<nDims,Index,UHC>& grid,
 	      F compute,
 	      const HowToIndex& HT) :
     grid(grid)
@@ -138,21 +142,21 @@ DECLARE_COMPONENT(EosSite,int64_t,DYNAMIC,eosSite);
 //     typename Geom::LongIndex;
   
 //   /// Virtual nodes grid
-//   using VNodesLxGrid=
-//     LxGrid<NDim,VNodesIndex>;
+//   using VNodesHCube=
+//     HCube<NDim,VNodesIndex>;
   
 //   /// Fused sites grid
-//   using FSitesLxGrid=
-//     LxGrid<NDim,FSitesIndex>;
+//   using FSitesHCube=
+//     HCube<NDim,FSitesIndex>;
   
 //   /// Reference geometry
 //   const Geometry<NDim>& geom;
   
 //   /// Grid to access virtual nodes
-//   const VNodesLxGrid vNodesLxGrid;
+//   const VNodesHCube vNodesHCube;
   
 //   /// Grid to move within fused sites
-//   const FSitesLxGrid fSitesLxGrid;
+//   const FSitesHCube fSitesHCube;
   
 //   /// Lebesgue ordering of fused sites
 //   const IndexedGrid<NDim,FSitesIndex> LebOrder;
@@ -165,7 +169,7 @@ DECLARE_COMPONENT(EosSite,int64_t,DYNAMIC,eosSite);
 //       LebOrder.lxOfId[fSiteLeb];
     
 //     return
-//       fSitesLxGrid.coordsOfLx[fSiteLx];
+//       fSitesHCube.coordsOfLx[fSiteLx];
 //   }
   
 //   /// Compute global lx of a given pair of fused/unfused indices
@@ -178,11 +182,11 @@ DECLARE_COMPONENT(EosSite,int64_t,DYNAMIC,eosSite);
     
 //     /// Virtual node coordinates
 //     const Coords<NDim> vNodeCoords=
-//       vNodesLxGrid.coordsOfLx[vNode];
+//       vNodesHCube.coordsOfLx[vNode];
     
 //     /// Local coordinates
 //     const Coords<NDim> locCoords=
-//       vNodeCoords+vNodesLxGrid.sizes*fSiteCoords;
+//       vNodeCoords+vNodesHCube.sizes*fSiteCoords;
     
 //     return locCoords;
 //   }
@@ -191,34 +195,34 @@ DECLARE_COMPONENT(EosSite,int64_t,DYNAMIC,eosSite);
 //   FusedSitesGeometry(const Geometry<NDim>& geom,
 // 		     const Coords<NDim>& vNodesLxSizes) :
 //     geom(geom),
-//     vNodesLxGrid(vNodesLxSizes),
-//     fSitesLxGrid(geom.locLxGrid.sizes/vNodesLxSizes),
-//     LebOrder(fSitesLxGrid,LxOfLebesgueCalculator<NDim,FSitesIndex>(fSitesLxGrid),HowToIndex::DEDUCE_LX_FROM_INDEX)
+//     vNodesHCube(vNodesLxSizes),
+//     fSitesHCube(geom.locHCube.sizes/vNodesLxSizes),
+//     LebOrder(fSitesHCube,LxOfLebesgueCalculator<NDim,FSitesIndex>(fSitesHCube),HowToIndex::DEDUCE_LX_FROM_INDEX)
 //   {
-//     if((geom.locLxGrid.sizes%vNodesLxSizes).sumAll())
-//       CRASHER<<"Local sizes "<<geom.locLxGrid.sizes<<" incompatible with requested vNodes Sizes"<<vNodesLxSizes<<endl;
+//     if((geom.locHCube.sizes%vNodesLxSizes).sumAll())
+//       CRASHER<<"Local sizes "<<geom.locHCube.sizes<<" incompatible with requested vNodes Sizes"<<vNodesLxSizes<<endl;
 //   }
 // };
 
 void inMain(int narg,char** arg)
 {
-  static constexpr int NDim=4;
+  static constexpr int nDims=4;
   
-  const Coords<NDim> glbSizes{1,1,2,6};
-  const Coords<NDim> nRanksPerDim{1,1,1,2};
+  const Coords<nDims> glbSizes{1,1,2,6};
+  const Coords<nDims> nRanksPerDim{1,1,1,2};
   
-  Geometry<NDim> geometry(glbSizes,nRanksPerDim);
+  Geometry<nDims> geometry(glbSizes,nRanksPerDim);
   
-  // LOGGER<<allDimensions<NDim><<endl;
-  // LOGGER<<allDimensionsBut<NDim,0><<endl;
+  // LOGGER<<allDimensions<nDims><<endl;
+  // LOGGER<<allDimensionsBut<nDims,0><<endl;
   // LOGGER<<"Bulk local volume: "<<geometry.locGrid.bulkVol<<" expected: "<<14*14*14*32<<endl;
-  //Geometry<NDim> geometry({2,2,2,2},{2,1,1,1});
+  //Geometry<nDims> geometry({2,2,2,2},{2,1,1,1});
   
-  //FusedSitesGeometry<NDim> fGeom(geometry,{1,2,2,2});
+  //FusedSitesGeometry<nDims> fGeom(geometry,{1,2,2,2});
   
-  // LOGGER<<geometry.glbCoordsOfLocLx(Geometry<NDim>::locSite(3))<<endl;
+  // LOGGER<<geometry.glbCoordsOfLocLx(Geometry<nDims>::locSite(3))<<endl;
   
-  // for(Geometry<NDim>::LocSite lx(0);lx<geometry.locVol;lx++)
+  // for(Geometry<nDims>::LocSite lx(0);lx<geometry.locVol;lx++)
   //   LOGGER<<geometry.parityOfLocLx(lx)<<endl;
   
   // Tensor<TensorComps<Compl>> t;
@@ -228,10 +232,10 @@ void inMain(int narg,char** arg)
   /////////////////////////////////////////////////////////////////
   
     using LocSite=
-    Geometry<NDim>::LocSite;
+    Geometry<nDims>::LocSite;
   
   using Parity=
-    Geometry<NDim>::Parity;
+    Geometry<nDims>::Parity;
   
   const EosSite locVolh(geometry.locVolH);
   
@@ -241,23 +245,23 @@ void inMain(int narg,char** arg)
   struct EosIndexInitializer
   {
     /// Reference geometry
-    const Geometry<NDim>& geo;
+    const Geometry<nDims>& geo;
     
     /// Even/Odd split dimension
     const int eoSplitDimension;
     
     /// Sizes of the even/odd split grid
-    const Coords<NDim> locEoSizes;
+    const Coords<nDims> locEoSizes;
     
     /// Even/Odd split grid grouping two sites
-    const LxGrid<NDim,EosSite,UseHashedCoords::HASHED> eosGrid;
+    const HCube<nDims,EosSite,UseHashedCoords::HASHED> eosGrid;
     
     /// Constructor
-    EosIndexInitializer(const Geometry<NDim>& geo) :
+    EosIndexInitializer(const Geometry<nDims>& geo) :
       geo(geo),
       eoSplitDimension(geo.fastestLocalEvenDimension()),
-      locEoSizes(geo.locSizes/(Coords<NDim>::versor(eoSplitDimension)+Coords<NDim>::getAll(1))),
-      eosGrid(locEoSizes,geo.isDimensionLocal)
+      locEoSizes(geo.locSizes/(Coords<nDims>::versor(eoSplitDimension)+Coords<nDims>::getAll(1))),
+      eosGrid(locEoSizes,geo.isDirectionFullyLocal)
     {
       LOGGER<<"e/o split dimension: "<<eoSplitDimension<<endl;
       LOGGER<<"loceo sizes: "<<locEoSizes<<endl;
@@ -267,7 +271,7 @@ void inMain(int narg,char** arg)
     std::array<LocSite,2> locLxPairOfEosSite(const EosSite& eosSite) const
     {
       /// Coordinates in the eos grid
-      const Coords<NDim> eosCoords=
+      const Coords<nDims> eosCoords=
 	eosGrid.coordsOfLx(eosSite);
       
       /// Result
@@ -276,7 +280,7 @@ void inMain(int narg,char** arg)
       for(int i=0;i<2;i++)
 	{
 	  /// Coordinates
-	  Coords<NDim> lxCoords=
+	  Coords<nDims> lxCoords=
 	    eosCoords;
 	  
 	  // Double in the eo dimension and increase in turn
@@ -323,7 +327,7 @@ void inMain(int narg,char** arg)
 	}
     }
   
-  setPrintingRank(0);
+  setPrintingRank(mpiRank(0));
   
   LOGGER<<"/////////////////////////////////////////////////////////////////"<<endl;
   
@@ -351,8 +355,8 @@ void inMain(int narg,char** arg)
   // 			    [&eosOrder](auto& id,
   // 				 const ParityEos& comps)
   // 			    {
-  // 			      const Geometry<NDim>::Parity& parity=
-  // 				std::get<Geometry<NDim>::Parity>(comps);
+  // 			      const Geometry<nDims>::Parity& parity=
+  // 				std::get<Geometry<nDims>::Parity>(comps);
 			      
   // 			      const EosSite& eosSite=
   // 				std::get<EosSite>(comps);
@@ -362,16 +366,16 @@ void inMain(int narg,char** arg)
   // 			      LOGGER<<"Decompose: "<<id<<", eos: "<<eosSite<<", par: "<<parity<<endl;
   // 			    });
   
-  // for(Geometry<NDim>::Parity par(0);par<2;par++)
+  // for(Geometry<nDims>::Parity par(0);par<2;par++)
   // for(EosSite eos(0);eos<geometry.locVolH;eos++)
   //   LOGGER<<eosOrder.locLxOfSite[par][eos].eval()<<endl;
   
-  // LxGrid<NDim,int> grid({4,2,2,2});
+  // HCube<nDims,int> grid({4,2,2,2});
     
   //   LOGGER<<grid.computeSurfVol()<<endl;
     
-  //   IndexedGrid<NDim,int> boh(grid,[](const int& i){return i;},HowToIndex::DEDUCE_INDEX_FROM_LX);
-  //   IndexedGrid<NDim,int> leb(grid,LxOfLebesgueCalculator<NDim,int>(grid),HowToIndex::DEDUCE_LX_FROM_INDEX);
+  //   IndexedGrid<nDims,int> boh(grid,[](const int& i){return i;},HowToIndex::DEDUCE_INDEX_FROM_LX);
+  //   IndexedGrid<nDims,int> leb(grid,LxOfLebesgueCalculator<nDims,int>(grid),HowToIndex::DEDUCE_LX_FROM_INDEX);
     
   //   for(int i=0;i<grid.vol;i++)
   //     LOGGER<<i<<" "<<leb.idOfLx[i]<<endl;

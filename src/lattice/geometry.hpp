@@ -7,7 +7,8 @@
 
 /// \file geometry.hpp
 
-#include <lattice/lxGrid.hpp>
+#include <lattice/hCube.hpp>
+#include <lattice/world.hpp>
 #include <tensors/component.hpp>
 
 namespace maze
@@ -15,9 +16,21 @@ namespace maze
   /// Structure to incapsulate the lexicographic grids needed to move across a lattice
   ///
   /// In the naming scheme, Lx denotes a site
-  template <int NDim=4>
+  template <int _NDims=4>
   struct Geometry
   {
+    /// Number of dimensions
+    static constexpr int nDims=
+      world<_NDims>::nDims;
+    
+    /// Direction index
+    using Direction=
+      typename world<nDims>::Direction;
+    
+    /// Number of oriented directions
+    static constexpr int nOrientedDirs=
+      world<nDims>::nOrientedDirs;
+    
     DECLARE_COMPONENT(GlbSite,int64_t,DYNAMIC,glbSite);
     DECLARE_COMPONENT(LocSite,int64_t,DYNAMIC,locSite);
     DECLARE_COMPONENT(Rank,int32_t,DYNAMIC,rank);
@@ -34,21 +47,21 @@ namespace maze
     
     /// Global lattice grid
     using GlbGrid=
-      LxGrid<NDim,GlbSite,NOT_HASHED>;
+      HCube<nDims,GlbSite,NOT_HASHED>;
     
     /// Ranks grid
     using RanksGrid=
-      LxGrid<NDim,Rank,HASHED>;
+      HCube<nDims,Rank,HASHED>;
     
     /// Local lattice grid
     using LocGrid=
-      LxGrid<NDim,LocSite,HASHED>;
+      HCube<nDims,LocSite,HASHED>;
     
     /// Global site grid
     const GlbGrid glbGrid;
     
     /// Global sizes
-    const Coords<NDim>& glbSizes=
+    const Coords<nDims>& glbSizes=
 	    glbGrid.sizes;
     
     /// Global volume
@@ -59,18 +72,20 @@ namespace maze
     const RanksGrid ranksGrid;
     
     /// Number of ranks per dimension
-    const Coords<NDim>& nRanksPerDim=
+    const Coords<nDims>& nRanksPerDim=
 	    ranksGrid.sizes;
     
-    /// Local dimensions
-#warning change again name
-    const Coords<NDim> isDimensionLocal;
+    /// Neighoboring ranks
+    const std::array<Rank,nOrientedDirs> rankNeighs;
+    
+    /// Store whether the directions are fully local
+    const Coords<nDims> isDirectionFullyLocal;
     
     /// Local sites grid
     const LocGrid locGrid;
     
     /// Local sizes
-    const Coords<NDim>& locSizes=
+    const Coords<nDims>& locSizes=
 	    locGrid.sizes;
     
     /// Local volume
@@ -85,7 +100,7 @@ namespace maze
     const Vector<Parity> locLxParityTable;
     
     /// Parity of a site, given its global coordinates
-    Parity parityOfGlbCoords(const Coords<NDim>& c) const
+    Parity parityOfGlbCoords(const Coords<nDims>& c) const
     {
       return static_cast<Parity>(c.sumAll()%2);
     }
@@ -108,56 +123,58 @@ namespace maze
     }
     
     /// Compute the lx site of a given set of coords
-    LocSite computeLxOfLocCoords(const Coords<NDim>& coords) const
+    LocSite computeLxOfLocCoords(const Coords<nDims>& coords) const
     {
       return locGrid.computeLxOfCoords(coords);
     }
     
     /// Compute global coordinates, given local site and rank
-    Coords<NDim> glbCoordsOfLocLx(const LocSite& locLx,
+    Coords<nDims> glbCoordsOfLocLx(const LocSite& locLx,
 				  const Rank& rankId=rank(thisRank())) const
     {
       /// Local coordinates
-      const Coords<NDim> locCoords=
+      const Coords<nDims> locCoords=
 	locGrid.coordsOfLx(locLx);
       
       /// Coordinate of the rank
-      const Coords<NDim> rankCoords=
+      const Coords<nDims> rankCoords=
 	ranksGrid.coordsOfLx(rankId);
       
       /// Resulting coordinates
-      Coords<NDim> glbCoords=
+      Coords<nDims> glbCoords=
 	locCoords+rankCoords*locGrid.sizes;
       
       return glbCoords;
     }
     
     /// Return fasted dimension of even local size
-    int fastestLocalEvenDimension() const
+    Direction fastestLocalEvenDimension() const
     {
       /// Result
-      int res=
-	NDim;
+      Direction res(nDims);
       
       // Find last even dimension
-      for(int mu=0;mu<NDim;mu++)
+      for(Direction mu(0);mu<nDims;mu++)
 	if(locSizes[mu]%2==0)
 	  res=mu;
       
-      if(res==NDim)
+      if(res==nDims)
 	CRASHER<<"No even dimension found"<<endl;
       
       return res;
     }
     
     /// Constructor
-    Geometry(const Coords<NDim>& glbSizes,
-	     const Coords<NDim>& ranksSizes) :
-      glbGrid(glbSizes,allDimensions<NDim>),
-      ranksGrid(ranksSizes,allDimensions<NDim>),
-      isDimensionLocal(ranksSizes==1),
-      locGrid(glbSizes/ranksSizes,isDimensionLocal),
-      locLxParityTable(locVol,[this](const size_t& lx){return this->computeParityOfLocLx(locSite(lx));})
+    Geometry(const Coords<nDims>& glbSizes,
+	     const Coords<nDims>& ranksSizes) :
+      glbGrid(glbSizes,allDimensions<nDims>),
+      ranksGrid(ranksSizes,allDimensions<nDims>),
+      isDirectionFullyLocal(ranksSizes==1 /* compare each direction to 1 */),
+      locGrid(glbSizes/ranksSizes,isDirectionFullyLocal),
+      locLxParityTable(locVol,[this](const size_t& lx)
+			      {
+				return this->computeParityOfLocLx(locSite(lx));
+			      })
     {
       if((glbSizes%ranksSizes).sumAll())
 	CRASHER<<"Global sizes "<<glbSizes<<" incompatible with rank sizes "<<ranksSizes<<endl;

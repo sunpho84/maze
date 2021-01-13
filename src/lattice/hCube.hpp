@@ -5,96 +5,14 @@
 # include "config.hpp"
 #endif
 
-/// \file lxGrid.hpp
+/// \file hCube.hpp
 
-#include <lattice/coords.hpp>
+#include <lattice/lxCoordsProvider.hpp>
 #include <lattice/world.hpp>
-#include <resources/vector.hpp>
-
-/*
-Griglia base: HCube
-tipi membro:
- indice lessicografico
-membri:
- Dimensioni
- Periodicita'
- tavola coordinate (opzionale)
- volume, superficie etc
-metodi
- calcolare volume,
- superficie
- calcolo indice lessicografico da indice
- calcolo coordinate da indice lessicografico
-
-*/
 
 namespace maze
 {
-  /// Options for lookup-table usage
-  enum UseHashedCoords{HASHED,NOT_HASHED};
-  
-  /// Lexicographic grid
-  template <int _NDims,
-	    typename Index,
-	    UseHashedCoords HC>
-  struct HCube;
-  
-  /// Uses a lookup table for the coordinates
-  template <int _NDims,
-	    typename Index>
-  struct LxCoordsLookupTable
-  {
-    /// Number of dimensions
-    static constexpr int nDims=
-      _NDims;
-    
-    /// Lookup table of coordinates
-    const Vector<Coords<nDims>> coordsOfLxTable;
-    
-    /// Constructor
-    LxCoordsLookupTable(const HCube<nDims,Index,HASHED>& grid) :
-      coordsOfLxTable(grid.computeCoordsOfAllLx())
-    {
-    }
-    
-    /// Return data from the lookup table
-    INLINE_FUNCTION const Coords<nDims>& coordsOfLx(const HCube<nDims,Index,HASHED>& grid,
-						   const Index& id) const
-    {
-      return coordsOfLxTable[id];
-    }
-  };
-  
-  /// Do not hold the lookup table
-  template <int _NDims,
-	    typename Index>
-  struct LxCoordsNoLookupTable
-  {
-    /// Number of dimensions
-    static constexpr int nDims=
-      _NDims;
-    
-    /// Constructor
-    LxCoordsNoLookupTable(const HCube<nDims,Index,NOT_HASHED>& grid)
-    {
-    }
-    
-    /// Computes
-    INLINE_FUNCTION Coords<nDims> coordsOfLx(const HCube<nDims,Index,NOT_HASHED>& grid,
-					     const Index& id) const
-    {
-      return grid.computeCoordsOfLx(id);
-    }
-  };
-  
-  /// Use or not the lookup table
-  template <int NDim,
-	    typename Index,
-	    UseHashedCoords UHC>
-  using HashedOrNotLxCoords=
-    std::conditional_t<UHC==HASHED,LxCoordsLookupTable<NDim,Index>,LxCoordsNoLookupTable<NDim,Index>>;
-  
-  /// Lexicographic grid
+  /// Hypercube
   template <int NDim,
 	    typename Index,
 	    UseHashedCoords UHC>
