@@ -30,16 +30,16 @@ namespace maze
     static constexpr UseHashedCoords isHashed=
       UHC;
     
-    /// Sizes of the grid
+    /// Sizes of the hypercube
     const Coords<NDim> sizes;
     
     /// Keeps note whether each direction is periodic, or not
     const Coords<NDim> periodic;
     
-    /// Grid volume
+    /// Hypercube volume
     const Index vol;
     
-    /// Half the grid volume
+    /// Half the hypervolume
     const Index volH;
     
     /// Check if it has bulk
@@ -70,7 +70,7 @@ namespace maze
       return Index(sizes.prodAll());
     }
     
-    /// Check if the grid has a bulk
+    /// Check if the hypercube has a bulk
     ///
     /// Each dimension must be periodic, or have size>=2
     bool computeHasBulk() const
