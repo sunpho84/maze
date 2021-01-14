@@ -6,77 +6,6 @@
 
 using namespace maze;
 
-/// Transpose a shuffler
-template <typename I>
-Vector<I> transposeShuffler(const Vector<I>& shuffler)
-{
-  /// Number of elements
-  const I n=
-    shuffler.nEl;
-  
-  /// Result
-  Vector<I> res(n,n /* as initializer */);
-  
-  for(I i=0;i<n;i++)
-    {
-      /// Index of the given element
-      const I id=shuffler[i];
-      
-      // Check that id is in the correct range
-      if(id<0 or id>n)
-	CRASHER<<"while transposing shuffler, id of element "<<i<<": "<<id<<" out of range [0;"<<n<<")"<<endl;
-      
-      if(res[id]!=n)
-	CRASHER<<"while transposing shuffler, id of element "<<i<<": "<<id<<" already used by element: "<<res[id]<<endl;
-	
-      res[id]=i;
-    }
-  
-  return res;
-}
-
-/// Specify if index has to be deduced, or lx
-enum HowToIndex{DEDUCE_INDEX_FROM_LX,DEDUCE_LX_FROM_INDEX};
-
-/// Grid with a specific index
-template <int _NDims,
-	  typename Index,
-	  UseHashedCoords UHC>
-struct IndexedGrid
-{
-  /// Number of dimensions
- static constexpr int nDims=
-   _NDims;
-  
-  /// Grid of reference
-  const HCube<nDims,Index,UHC>& grid;
-  
-  /// Index of a given lexicographic site
-  Vector<Index> idOfLx;
-  
-  /// Lexicographic site of a given index
-  Vector<Index> lxOfId;
-  
-  /// Constructor taking a reference grid and a function to compute id from lx
-  template <typename F>
-  IndexedGrid(const HCube<nDims,Index,UHC>& grid,
-	      F compute,
-	      const HowToIndex& HT) :
-    grid(grid)
-  {
-    switch(HT)
-      {
-      case DEDUCE_INDEX_FROM_LX:
-	idOfLx=Vector<Index>(grid.vol,compute);
-	lxOfId=transposeShuffler(idOfLx);
-	break;
-      case DEDUCE_LX_FROM_INDEX:
-	lxOfId=Vector<Index>(grid.vol,compute);
-	idOfLx=transposeShuffler(lxOfId);
-	break;
-      }
-  }
-};
 
 template <typename Lx,
 	  typename TC>
@@ -106,6 +35,7 @@ struct SitesOrdering<Lx,TensorComps<C...>>
 };
 
 DECLARE_COMPONENT(EosSite,int64_t,DYNAMIC,eosSite);
+DECLARE_COMPONENT(LebSite,int64_t,DYNAMIC,lebSite);
 
 
 // X.X
@@ -141,25 +71,25 @@ DECLARE_COMPONENT(EosSite,int64_t,DYNAMIC,eosSite);
 //   using LocLxIndex=
 //     typename Geom::LongIndex;
   
-//   /// Virtual nodes grid
+//   /// Virtual nodes hypercube
 //   using VNodesHCube=
 //     HCube<NDim,VNodesIndex>;
   
-//   /// Fused sites grid
+//   /// Fused sites hypercube
 //   using FSitesHCube=
 //     HCube<NDim,FSitesIndex>;
   
 //   /// Reference geometry
 //   const Geometry<NDim>& geom;
   
-//   /// Grid to access virtual nodes
+//   /// Hypercube to access virtual nodes
 //   const VNodesHCube vNodesHCube;
   
-//   /// Grid to move within fused sites
+//   /// Hypercube to move within fused sites
 //   const FSitesHCube fSitesHCube;
   
 //   /// Lebesgue ordering of fused sites
-//   const IndexedGrid<NDim,FSitesIndex> LebOrder;
+//   const IndexedHypercube<NDim,FSitesIndex> LebOrder;
   
 //   /// Computes the coords of a given fused site
 //   const Coords<NDim>& computeFSiteCoordsOfLeb(const FSitesIndex& fSiteLeb) const
@@ -212,7 +142,7 @@ void inMain(int narg,char** arg)
   const Coords<nDims> nRanksPerDim{1,1,1,2};
   
   Geometry<nDims> geometry(glbSizes,nRanksPerDim);
-  
+
   // LOGGER<<allDimensions<nDims><<endl;
   // LOGGER<<allDimensionsBut<nDims,0><<endl;
   // LOGGER<<"Bulk local volume: "<<geometry.locGrid.bulkVol<<" expected: "<<14*14*14*32<<endl;
@@ -250,18 +180,18 @@ void inMain(int narg,char** arg)
     /// Even/Odd split dimension
     const int eoSplitDimension;
     
-    /// Sizes of the even/odd split grid
+    /// Sizes of the even/odd split sites
     const Coords<nDims> locEoSizes;
     
-    /// Even/Odd split grid grouping two sites
-    const HCube<nDims,EosSite,UseHashedCoords::HASHED> eosGrid;
+    /// Even/Odd split hypercube grouping two sites
+    const HCube<nDims,EosSite,UseHashedCoords::HASHED> eosHCube;
     
     /// Constructor
     EosIndexInitializer(const Geometry<nDims>& geo) :
       geo(geo),
       eoSplitDimension(geo.fastestLocalEvenDimension()),
       locEoSizes(geo.locSizes/(Coords<nDims>::versor(eoSplitDimension)+Coords<nDims>::getAll(1))),
-      eosGrid(locEoSizes,geo.isDirectionFullyLocal)
+      eosHCube(locEoSizes,geo.isDirectionFullyLocal)
     {
       LOGGER<<"e/o split dimension: "<<eoSplitDimension<<endl;
       LOGGER<<"loceo sizes: "<<locEoSizes<<endl;
@@ -270,9 +200,9 @@ void inMain(int narg,char** arg)
     /// Computes the two local sites of a given eosSite
     std::array<LocSite,2> locLxPairOfEosSite(const EosSite& eosSite) const
     {
-      /// Coordinates in the eos grid
+      /// Coordinates in the eos hypercube
       const Coords<nDims> eosCoords=
-	eosGrid.coordsOfLx(eosSite);
+	eosHCube.coordsOfLx(eosSite);
       
       /// Result
       std::array<LocSite,2> out;
@@ -370,12 +300,14 @@ void inMain(int narg,char** arg)
   // for(EosSite eos(0);eos<geometry.locVolH;eos++)
   //   LOGGER<<eosOrder.locLxOfSite[par][eos].eval()<<endl;
   
-  // HCube<nDims,int> grid({4,2,2,2});
+  HCube<nDims,Geometry<nDims>::LocSite,HASHED> hCube({4,2,2,2},{1,1,1,1});
     
   //   LOGGER<<grid.computeSurfVol()<<endl;
     
   //   IndexedGrid<nDims,int> boh(grid,[](const int& i){return i;},HowToIndex::DEDUCE_INDEX_FROM_LX);
-  //   IndexedGrid<nDims,int> leb(grid,LxOfLebesgueCalculator<nDims,int>(grid),HowToIndex::DEDUCE_LX_FROM_INDEX);
+  getHCubeIndexer<LebSite>(hCube,getLxOfLebesgueCalculator<LebSite>(hCube));
+  
+  //IndexedGrid<nDims,int> leb(grid,LxOfLebesgueCalculator<nDims,int>(grid),HowToIndex::DEDUCE_LX_FROM_INDEX);
     
   //   for(int i=0;i<grid.vol;i++)
   //     LOGGER<<i<<" "<<leb.idOfLx[i]<<endl;
