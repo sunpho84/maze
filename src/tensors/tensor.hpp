@@ -32,7 +32,7 @@ namespace maze
   struct THIS : public
     // Expr<THIS>,
     ComplexSubscribe<THIS>,
-    TensorFeat<IsTensor,THIS>
+    TensorFeat<THIS>
   {
     // /// Import assign operator from expression
     // using Expr<THIS>::operator=;
@@ -159,7 +159,7 @@ namespace maze
     
     /// Type to be used for the index
     using Index=
-      std::common_type_t<int,TC...>;
+      std::common_type_t<int,typename TC::Index...>;
     
     /// List of all statically allocated components
     using StaticComps=
@@ -321,7 +321,7 @@ namespace maze
     /// Initialize the tensor with the knowledge of the dynamic size
     template <typename...TD,
 	      ENABLE_THIS_TEMPLATE_IF(sizeof...(TD)>=1)>
-    Tensor(const TensorCompFeat<IsTensorComp,TD>&...tdFeat) :
+    Tensor(const TensorCompFeat<TD>&...tdFeat) :
       dynamicSizes{initializeDynSizes((DynamicComps*)nullptr,tdFeat.deFeat()...)},
       data(staticSize*(tdFeat.deFeat()*...))
     {
@@ -411,7 +411,7 @@ namespace maze
 	      typename Cp=Comps,					\
 	      ENABLE_THIS_TEMPLATE_IF(TupleHasType<C,Cp>)>		\
     CUDA_HOST_DEVICE INLINE_FUNCTION					\
-    auto operator[](const TensorCompFeat<IsTensorComp,C>& cFeat)		\
+    auto operator[](const TensorCompFeat<C>& cFeat)			\
       CONST_ATTR							\
     {									\
       /*! Subscribed components */					\

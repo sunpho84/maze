@@ -21,9 +21,7 @@
 
 namespace maze
 {
-  DEFINE_FEATURE(IsTensorComp);
-  
-  DEFINE_FEATURE_GROUP(TensorCompFeat);
+  DEFINE_FEATURE(TensorCompFeat);
   
   /// Short name for the TensorComp
 #define THIS					\
@@ -34,7 +32,7 @@ namespace maze
 	    RwCl RC=ROW,
 	    int Which=0>
   struct TensorComp :
-    public TensorCompFeat<IsTensorComp,THIS>
+    public TensorCompFeat<THIS>
   {
     /// Transposed component
     using Transp=
@@ -99,7 +97,8 @@ namespace maze
     
     /// Init from value
     INLINE_FUNCTION CUDA_HOST_DEVICE
-    explicit constexpr TensorComp(const Index& i=0) : i(i)
+    // explicit
+    constexpr TensorComp(const Index& i=0) : i(i)
     {
     }
     

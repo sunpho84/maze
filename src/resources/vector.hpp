@@ -19,7 +19,13 @@ namespace maze
   struct Vector
   {
     /// Number of elements
-    size_t nEl;
+    size_t _nEl;
+    
+    /// Return the number of elements
+    const size_t& size() const
+    {
+      return _nEl;
+    }
     
     /// Pointer to data
     E* data;
@@ -40,6 +46,10 @@ namespace maze
     template <typename F>
     size_t lastPositionWhere(F&& f) const
     {
+      /// Store the number of elements
+      const size_t nEl=
+	this->size();
+      
       /// Result
       size_t res=nEl;
       
@@ -58,14 +68,14 @@ namespace maze
     PROVIDE_ALSO_NON_CONST_METHOD(lastElementWhere);
     
     /// Copy constructor
-    Vector(const Vector& oth) : Vector(oth.nEl)
+    Vector(const Vector& oth) : Vector(oth._nEl)
     {
-      for(size_t i=0;i<nEl;i++)
+      for(size_t i=0;i<this->size();i++)
 	data[i]=oth[i];
     }
     
     /// Move constructor
-    Vector(Vector&& oth) : nEl(oth.nEl),data(oth.data)
+    Vector(Vector&& oth) : _nEl(oth._nEl),data(oth.data)
     {
       oth.data=nullptr;
     }
@@ -73,7 +83,7 @@ namespace maze
     /// Move assignment
     Vector& operator=(Vector&& oth)
     {
-      std::swap(nEl,oth.nEl);
+      std::swap(_nEl,oth._nEl);
       std::swap(data,oth.data);
       
       return *this;
@@ -86,15 +96,25 @@ namespace maze
     }
     
     /// Construct getting a filler
-    Vector(const size_t& nEl,
-	   std::function<E(const size_t&)> f) :
-      Vector(nEl)
+    template <typename F,
+	      ENABLE_THIS_TEMPLATE_IF(std::is_invocable_v<const F&,size_t>)>
+    void fill(const F& f)
     {
-      for(size_t iEl=0;iEl<nEl;iEl++)
+      for(size_t iEl=0;iEl<this->size();iEl++)
 	data[iEl]=f(iEl);
     }
     
     /// Construct getting a filler
+    template <typename F,
+	      ENABLE_THIS_TEMPLATE_IF(std::is_invocable_v<const F&,size_t>)>
+    Vector(const size_t& nEl,
+	   const F& f) :
+      Vector(nEl)
+    {
+      fill(f);
+    }
+    
+    /// Construct getting a value
     Vector(const size_t& nEl,
 	   const E& e) :
       Vector(nEl)
@@ -105,12 +125,12 @@ namespace maze
     
     /// Construct getting number of elements and pointer
     Vector(const size_t& nEl,
-	   E* data) : nEl(nEl),data(data)
+	   E* data) : _nEl(nEl),data(data)
     {
     }
     
     /// Default construct
-    Vector() : nEl(0),data(nullptr)
+    Vector() : _nEl(0),data(nullptr)
     {
     }
     

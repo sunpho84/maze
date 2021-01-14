@@ -13,9 +13,7 @@
 
 namespace maze
 {
-  DEFINE_FEATURE(IsTensor);
-  
-  DEFINE_FEATURE_GROUP(TensorFeat);
+  DEFINE_FEATURE(TensorFeat);
 }
 
 #endif

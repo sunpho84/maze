@@ -7,51 +7,53 @@
 
 /// \file Lebesgue.hpp
 
-#include <lattice/hCube.hpp>
+#include <lattice/hCubeIndexer.hpp>
 #include <utilities/factorize.hpp>
 
 namespace maze
 {
   /// Structure to compute Lebesgue index
-  template <typename G>
-  struct LxOfLebesgueCalculator
+  template <typename G,
+	    typename LebIndex>
+  struct LxOfLebesgueCalculator :
+    public LxIndexDeducer<LxOfLebesgueCalculator<G,LebIndex>>
   {
     /// Reference grid
     const G& grid;
     
     /// Number of dimensions
-    static constexpr int NDim=
-      G::NDim;
+    static constexpr int nDims=
+      G::nDims;
     
     /// Index type
-    using Index=
+    using LxIndex=
       typename G::Index;
     
     /// Factors needed to compute Leb index
     std::vector<std::vector<int>> factors;
     
     /// Compute the Lx of a given Lebesgue
-    Index operator()(const Index& _Leb) const
+    LxIndex operator()(const LebIndex& _Leb) const
     {
-      Index Leb=_Leb;
+      LebIndex Leb=_Leb;
       
       /// Number of factors
       const size_t& nFactors=factors.size();
-      Coords<NDim> c,t1,t2,t3;
+      Coords<nDims> c,t1,t2,t3;
       
-      for(int i=0;i<NDim;i++)
+      for(int i=0;i<nDims;i++)
 	{
 	  t1[i]=t2[i]=c[i]=0;
-	  t3[i]=(NDim*nFactors-1)%nFactors;
+	  t3[i]=(nDims*nFactors-1)%nFactors;
 	}
       
       /// Convert to mixed base
-      int xMixedBase[NDim][NDim*nFactors];
+      int xMixedBase[nDims][nDims*nFactors];
       memset(xMixedBase,0,sizeof(xMixedBase));
       
-      for(int i=0;i<(int)(NDim*nFactors);i++)
+      for(int i=0;i<(int)(nDims*nFactors);i++)
 	{
-	  int mu=NDim-1-(i%NDim);
+	  int mu=nDims-1-(i%nDims);
 	  int f=factors[t1[mu]][mu];
 	  
 	  xMixedBase[mu][t2[mu]]=Leb%f;
@@ -62,8 +64,8 @@ namespace maze
 	}
       
       //build coordinate in lx format
-      for(int mu=0;mu<NDim;mu++)
-	for(int j=NDim*nFactors-1;j>=0;j--)
+      for(int mu=0;mu<nDims;mu++)
+	for(int j=nDims*nFactors-1;j>=0;j--)
 	  {
 	    c[mu]=xMixedBase[mu][j]+factors[t3[mu]][mu]*c[mu];
 	    t3[mu]=(t3[mu]+nFactors-1)%nFactors;
@@ -77,17 +79,17 @@ namespace maze
     {
       /// Get nmax_fact
       int nMaxFacts=0;
-      for(int mu=0;mu<NDim;mu++)
+      for(int mu=0;mu<nDims;mu++)
 	nMaxFacts=std::max(nMaxFacts,(int)factorize(grid.sizes[mu]).size());
       
       /// Set all factors to 1
-      factors.resize(nMaxFacts,std::vector<int>(NDim));
+      factors.resize(nMaxFacts,std::vector<int>(nDims));
       for(int i=0;i<nMaxFacts;i++)
-	for(int mu=0;mu<NDim;mu++)
+	for(int mu=0;mu<nDims;mu++)
 	  factors[i][mu]=1;
       
       //put all the non-1 factors
-      for(int mu=0;mu<NDim;mu++)
+      for(int mu=0;mu<nDims;mu++)
 	{
 	  const std::vector<int> listFactMu=factorize(grid.sizes[mu]);
 	  const int nFacts=listFactMu.size();
@@ -97,6 +99,15 @@ namespace maze
 	}
     }
   };
+  
+  /// Returns a Lebesgue index calculator
+  template <typename LebIndex,
+	    typename G>
+  auto getLxOfLebesgueCalculator(const G& hCube)
+  {
+    return LxOfLebesgueCalculator<G,LebIndex>(hCube);
+  }
+  
 }
 
 #endif

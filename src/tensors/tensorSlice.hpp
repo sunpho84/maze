@@ -16,9 +16,7 @@
 
 namespace maze
 {
-  DEFINE_FEATURE(IsTensorSlice);
-  
-  DEFINE_FEATURE_GROUP(TensorSliceFeat);
+  DEFINE_FEATURE(TensorSliceFeat);
   
   namespace impl
   {
@@ -60,7 +58,7 @@ namespace maze
     ComplexSubscribe<THIS>,
   //AssignFromFundProvider<not IsConst,THIS,ExtFund>,
   //ToFundCastProvider<CanBeCastToFund,THIS,ConstIf<IsConst,ExtFund>,FundCastByRefVal::BY_REF>,
-    TensorSliceFeat<IsTensorSlice,THIS>
+    TensorSliceFeat<THIS>
   {
     /// Keep note of the template par
     static constexpr bool canBeCastToFund=
@@ -130,7 +128,7 @@ namespace maze
     template <typename C,						\
 	      typename Cp=Comps>					\
     CUDA_HOST_DEVICE INLINE_FUNCTION					\
-    auto operator[](const TensorCompFeat<IsTensorComp,C>& cFeat) CONST_ATTR	\
+    auto operator[](const TensorCompFeat<C>& cFeat) CONST_ATTR	\
     {									\
 									\
       /*! Nested reference subscribed components */			\
@@ -175,7 +173,7 @@ namespace maze
     
     /// Create from slice and list of subscribed components
     CUDA_HOST_DEVICE
-    TensorSlice(const TensorFeat<IsTensor,T>& t,
+    TensorSlice(const TensorFeat<T>& t,
 	      const SubsComps& subsComps) :
       t(t.deFeat()),subsComps(subsComps)
     {
