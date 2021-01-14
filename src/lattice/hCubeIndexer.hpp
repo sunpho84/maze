@@ -68,8 +68,8 @@ namespace maze
   template <typename Index,
 	    typename HC,
 	    typename F>
-  auto getHCubeIndexer(const HC& hCube,
-		       const F& f)
+  HCubeIndexer<Index,HC> getHCubeIndexer(const HC& hCube,
+					 const F& f)
   {
     return HCubeIndexer<Index,HC>(hCube,f);
   }
