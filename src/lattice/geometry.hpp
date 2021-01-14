@@ -171,10 +171,10 @@ namespace maze
       ranksGrid(ranksSizes,allDimensions<nDims>),
       isDirectionFullyLocal(ranksSizes==1 /* compare each direction to 1 */),
       locGrid(glbSizes/ranksSizes,isDirectionFullyLocal),
-      locLxParityTable(locVol,[this](const size_t& lx)
-			      {
-				return this->computeParityOfLocLx(locSite(lx));
-			      })
+      locLxParityTable(locVol,[this](const LocSite& lx)
+      			      {
+      				return this->computeParityOfLocLx(lx);
+      			      })
     {
       if((glbSizes%ranksSizes).sumAll())
 	CRASHER<<"Global sizes "<<glbSizes<<" incompatible with rank sizes "<<ranksSizes<<endl;

@@ -14,17 +14,16 @@
 
 namespace maze
 {
-  /// Provides a simple struct with the given name, to be used to catch a feature
-#define DEFINE_FEATURE(NAME) \
-  struct NAME		     \
-  {			     \
-  }
+//   /// Provides a simple struct with the given name, to be used to catch a feature
+// #define DEFINE_FEATURE(NAME) 
+//   struct NAME		     
+//   {			     
+//   }
   
-  /// Define a group of feature parametrized, all parametrized by a FeatName feature
-#define DEFINE_FEATURE_GROUP(GROUP_FEATURE_NAME)	\
-  template <typename FeatName,				\
-	    typename Defeated>				\
-  struct GROUP_FEATURE_NAME				\
+  /// Define a feature
+#define DEFINE_FEATURE(FEATURE_NAME)			\
+  template <typename Defeated>				\
+  struct FEATURE_NAME					\
   {							\
     PROVIDE_DEFEAT_METHOD(Defeated);			\
   }

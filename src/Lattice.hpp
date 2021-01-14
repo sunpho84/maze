@@ -4,6 +4,8 @@
 #include <lattice/coords.hpp>
 #include <lattice/geometry.hpp>
 #include <lattice/hCube.hpp>
+#include <lattice/hCubeIndexer.hpp>
+#include <lattice/indexShuffler.hpp>
 #include <lattice/Lebesgue.hpp>
 #include <lattice/lxCoordsProvider.hpp>
 #include <lattice/world.hpp>

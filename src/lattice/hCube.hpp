@@ -13,14 +13,18 @@
 namespace maze
 {
   /// Hypercube
-  template <int NDim,
-	    typename Index,
+  template <int _NDims,
+	    typename _Index,
 	    UseHashedCoords UHC>
   struct HCube
   {
     /// Number of dimensions
     static constexpr int nDims=
-      NDim;
+      _NDims;
+    
+    /// Index type
+    using Index=
+      _Index;
     
     /// Direction index
     using Direction=
@@ -31,10 +35,10 @@ namespace maze
       UHC;
     
     /// Sizes of the hypercube
-    const Coords<NDim> sizes;
+    const Coords<nDims> sizes;
     
     /// Keeps note whether each direction is periodic, or not
-    const Coords<NDim> periodic;
+    const Coords<nDims> periodic;
     
     /// Hypercube volume
     const Index vol;
@@ -49,11 +53,11 @@ namespace maze
     const Index bulkVol;
     
     /// Holds the coordinates or compute them
-    HashedOrNotLxCoords<NDim,Index,UHC> coordsProvider;
+    HashedOrNotLxCoords<nDims,Index,UHC> coordsProvider;
     
     /// Construct from sizes
-    HCube(const Coords<NDim>& sizes,
-	   const Coords<NDim>& periodic) :
+    HCube(const Coords<nDims>& sizes,
+	   const Coords<nDims>& periodic) :
       sizes(sizes),
       periodic(periodic),
       vol(this->computeVol()),
@@ -78,7 +82,7 @@ namespace maze
       /// Result initialized to true
       bool hasBulk=true;
       
-      for(Direction mu(0);mu<NDim;mu++)
+      for(Direction mu=0;mu<nDims;mu++)
 	hasBulk&=(periodic[mu] or sizes[mu]>=2);
       
       return hasBulk;
@@ -88,9 +92,9 @@ namespace maze
     Index computeBulkVol() const
     {
       /// Initial value
-      Index bulkVol{1};
+      Index bulkVol=1;
       
-      for(Direction mu(0);mu<NDim;mu++)
+      for(Direction mu=0;mu<nDims;mu++)
 	bulkVol*=
 	  periodic[mu]?
 	  sizes[mu]:
@@ -106,23 +110,23 @@ namespace maze
     }
     
     /// Computes the lexicographic index
-    Index computeLxOfCoords(const Coords<NDim>& coords) const
+    Index computeLxOfCoords(const Coords<nDims>& coords) const
     {
-      Index out(0);
+      Index out=0;
       
-      for(Direction mu(0);mu<NDim;mu++)
+      for(Direction mu=0;mu<nDims;mu++)
 	out=out*sizes[mu]+coords[mu];
       
       return out;
     }
     
     /// Computes the coordinates from the lexicographic index
-    Coords<NDim> computeCoordsOfLx(Index site /* don't make it const */) const
+    Coords<nDims> computeCoordsOfLx(Index site /* don't make it const */) const
     {
       /// Result coordinates
-      Coords<NDim> coords;
+      Coords<nDims> coords;
       
-      for(Direction mu(NDim-1);mu>=0;mu--)
+      for(Direction mu=nDims-1;mu>=0;mu--)
 	{
 	  coords[mu]=site%sizes[mu];
 	  site/=sizes[mu];
@@ -132,15 +136,15 @@ namespace maze
     }
     
     /// Computes the table of the coordinates of all sites
-    Vector<Coords<NDim>> computeCoordsOfAllLx() const
+    Vector<Coords<nDims>> computeCoordsOfAllLx() const
     {
       /// Precompute volume
       const Index vol=computeVol();
       
       /// Allocates the table
-      Vector<Coords<NDim>> coordsOfAllLx(vol);
+      Vector<Coords<nDims>> coordsOfAllLx(vol);
       
-      for(Index site(0);site<vol;site++)
+      for(Index site=0;site<vol;site++)
 	coordsOfAllLx[site]=this->computeCoordsOfLx(site);
       
       return coordsOfAllLx;
