@@ -13,21 +13,21 @@
 namespace maze
 {
   /// Structure to compute Lebesgue index
-  template <typename G,
+  template <typename HC,
 	    typename LebIndex>
   struct LxOfLebesgueCalculator :
-    public LxIndexDeducer<LxOfLebesgueCalculator<G,LebIndex>>
+    public LxIndexDeducer<LxOfLebesgueCalculator<HC,LebIndex>>
   {
-    /// Reference grid
-    const G& grid;
+    /// Reference hCube
+    const HC& hCube;
     
     /// Number of dimensions
     static constexpr int nDims=
-      G::nDims;
+      HC::nDims;
     
     /// Index type
     using LxIndex=
-      typename G::Index;
+      typename HC::Index;
     
     /// Factors needed to compute Leb index
     std::vector<std::vector<int>> factors;
@@ -71,16 +71,16 @@ namespace maze
 	    t3[mu]=(t3[mu]+nFactors-1)%nFactors;
 	  }
       
-      return grid.computeLxOfCoords(c);
+      return hCube.computeLxOfCoords(c);
     }
     
     /// Constructor
-    LxOfLebesgueCalculator(const G& grid) : grid(grid)
+    LxOfLebesgueCalculator(const HC& hCube) : hCube(hCube)
     {
       /// Get nmax_fact
       int nMaxFacts=0;
       for(int mu=0;mu<nDims;mu++)
-	nMaxFacts=std::max(nMaxFacts,(int)factorize(grid.sizes[mu]).size());
+	nMaxFacts=std::max(nMaxFacts,(int)factorize(hCube.sizes[mu]).size());
       
       /// Set all factors to 1
       factors.resize(nMaxFacts,std::vector<int>(nDims));
@@ -91,7 +91,7 @@ namespace maze
       //put all the non-1 factors
       for(int mu=0;mu<nDims;mu++)
 	{
-	  const std::vector<int> listFactMu=factorize(grid.sizes[mu]);
+	  const std::vector<int> listFactMu=factorize(hCube.sizes[mu]);
 	  const int nFacts=listFactMu.size();
 	  const int nFacts1=nMaxFacts-nFacts;
 	  for(int ifact=0;ifact<nFacts;ifact++)
@@ -102,12 +102,19 @@ namespace maze
   
   /// Returns a Lebesgue index calculator
   template <typename LebIndex,
-	    typename G>
-  auto getLxOfLebesgueCalculator(const G& hCube)
+	    typename HC>
+  auto getLxOfLebesgueCalculator(const HC& hCube)
   {
-    return LxOfLebesgueCalculator<G,LebIndex>(hCube);
+    return LxOfLebesgueCalculator<HC,LebIndex>(hCube);
   }
   
+  /// Returns an index over an hypercube
+  template <typename LebSite,
+	    typename HC>
+  auto getLebesgueIndexer(const HC& hCube)
+  {
+    return getHCubeIndexer<LebSite>(hCube,getLxOfLebesgueCalculator<LebSite>(hCube));
+  }
 }
 
 #endif

@@ -37,10 +37,10 @@ namespace maze
       typename HC::Index;
     
     /// Index of a given lexicographic site
-    IndexShuffler<Index,LxIndex> idOfLx;
+    IndexShuffler<LxIndex,Index> idOfLx;
     
     /// Lexicographic site of a given index
-    IndexShuffler<LxIndex,Index> lxOfId;
+    IndexShuffler<Index,LxIndex> lxOfId;
     
     /// Constructor taking a reference hypercube and a function to compute id from lx
     template <typename F>
