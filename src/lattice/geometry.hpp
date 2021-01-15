@@ -21,15 +21,15 @@ namespace maze
   {
     /// Number of dimensions
     static constexpr int nDims=
-      world<_NDims>::nDims;
+      _NDims;
     
     /// Direction index
     using Direction=
-      typename world<nDims>::Direction;
+      typename World<nDims>::Direction;
     
     /// Number of oriented directions
     static constexpr int nOrientedDirs=
-      world<nDims>::nOrientedDirs;
+      World<nDims>::nOrientedDirs;
     
     DECLARE_COMPONENT(GlbSite,int64_t,DYNAMIC,glbSite);
     DECLARE_COMPONENT(LocSite,int64_t,DYNAMIC,locSite);
@@ -97,7 +97,7 @@ namespace maze
       locGrid.volH;
     
     /// Parity and eos index of local sites
-    const Vector<Parity> locLxParityTable;
+    const Vector<Parity> _locLxParityTable;
     
     /// Parity of a site, given its global coordinates
     Parity parityOfGlbCoords(const Coords<nDims>& c) const
@@ -113,7 +113,7 @@ namespace maze
     /// Returns the parity of a local site from the lookup table
     Parity parityOfLocLx(const LocSite& id) const
     {
-      return locLxParityTable[id];
+      return _locLxParityTable[id];
     }
     
     /// Compute explicitly the parity of local sites
@@ -128,9 +128,15 @@ namespace maze
       return locGrid.computeLxOfCoords(coords);
     }
     
+    /// Returns local site coords
+    const Coords<nDims>& locCoordsOfLocLx(const LocSite& locLx) const
+    {
+      return locGrid.coordsOfLx(locLx);
+    }
+    
     /// Compute global coordinates, given local site and rank
     Coords<nDims> glbCoordsOfLocLx(const LocSite& locLx,
-				  const Rank& rankId=rank(thisRank())) const
+				   const Rank& rankId=rank(thisRank())) const
     {
       /// Local coordinates
       const Coords<nDims> locCoords=
@@ -147,23 +153,6 @@ namespace maze
       return glbCoords;
     }
     
-    /// Return fasted dimension of even local size
-    Direction fastestLocalEvenDimension() const
-    {
-      /// Result
-      Direction res(nDims);
-      
-      // Find last even dimension
-      for(Direction mu(0);mu<nDims;mu++)
-	if(locSizes[mu]%2==0)
-	  res=mu;
-      
-      if(res==nDims)
-	CRASHER<<"No even dimension found"<<endl;
-      
-      return res;
-    }
-    
     /// Constructor
     Geometry(const Coords<nDims>& glbSizes,
 	     const Coords<nDims>& ranksSizes) :
@@ -171,7 +160,7 @@ namespace maze
       ranksGrid(ranksSizes,allDimensions<nDims>),
       isDirectionFullyLocal(ranksSizes==1 /* compare each direction to 1 */),
       locGrid(glbSizes/ranksSizes,isDirectionFullyLocal),
-      locLxParityTable(locVol,[this](const LocSite& lx)
+      _locLxParityTable(locVol,[this](const LocSite& lx)
       			      {
       				return this->computeParityOfLocLx(lx);
       			      })
