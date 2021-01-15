@@ -10,14 +10,20 @@
 #include <array>
 #include <ostream>
 
+#include <lattice/world.hpp>
+
 namespace maze
 {
   /// Cartesian coordinates
-  template <int NDim>
+  template <int nDims>
   struct Coords
   {
+    /// Direction type
+    using Direction=
+      typename World<nDims>::Direction;
+    
     /// Internal data
-    std::array<int,NDim> data;
+    std::array<int,nDims> data;
     
     /// Const subscribe operator
     constexpr const int& operator[](const int& mu) const
@@ -37,7 +43,7 @@ namespace maze
       /// Result
       Coords out{};
       
-      for(int mu=0;mu<NDim;mu++)
+      for(Direction mu=0;mu<nDims;mu++)
 	out[mu]=V;
       
       return out;
@@ -50,7 +56,7 @@ namespace maze
       /// Result
       Coords out{};
       
-      for(int mu=0;mu<NDim;mu++)
+      for(Direction mu=0;mu<nDims;mu++)
 	if(Mu==mu)
 	  out[mu]=0;
 	else
@@ -66,7 +72,7 @@ namespace maze
       /*! Result */				\
       Coords res;				\
 						\
-      for(int mu=0;mu<NDim;mu++)		\
+      for(Direction mu=0;mu<nDims;mu++)		\
 	res[mu]=(*this)[mu] OP oth[mu];		\
 						\
       return res;				\
@@ -87,7 +93,7 @@ namespace maze
       /*! Result */				\
       Coords res;				\
 						\
-      for(int mu=0;mu<NDim;mu++)		\
+      for(Direction mu=0;mu<nDims;mu++)		\
 	res[mu]=(*this)[mu] OP oth;		\
 						\
       return res;				\
@@ -107,7 +113,7 @@ namespace maze
     {
       int coordsSum=0;
       
-      for(int mu=0;mu<NDim;mu++)
+      for(Direction mu=0;mu<nDims;mu++)
 	coordsSum+=(*this)[mu];
       
       return coordsSum;
@@ -118,31 +124,48 @@ namespace maze
     {
       int coordsProd=1;
       
-      for(int mu=0;mu<NDim;mu++)
+      for(Direction mu=0;mu<nDims;mu++)
 	coordsProd*=(*this)[mu];
       
       return coordsProd;
     }
     
     /// Returns a versor
-    static Coords<NDim> versor(int mu)
+    static Coords<nDims> versor(Direction mu)
     {
       /// Result
-      Coords<NDim> v{};
+      Coords<nDims> v{};
       
       v[mu]=1;
       
       return v;
     }
+    
+    /// Return fasted dimension of even local size
+    ///
+    /// Returns nDims if none found
+    Direction fastestLocalEvenDimension() const
+    {
+      /// Result
+      Direction res(nDims);
+      
+      // Find last even dimension
+      for(Direction mu=0;mu<nDims;mu++)
+	if((*this)[mu]%2==0)
+	  res=mu;
+      
+      return res;
+    }
+    
   };
   
   /// Output a coord
-  template <int NDim>
+  template <int nDims>
   std::ostream& operator<<(std::ostream& os,
-			   const Coords<NDim>& c)
+			   const Coords<nDims>& c)
   {
     os<<"{"<<c[0];
-    for(int mu=1;mu<NDim;mu++)
+    for(int mu=1;mu<nDims;mu++)
       os<<","<<c[mu];
     os<<"}";
     
@@ -150,20 +173,20 @@ namespace maze
   }
   
   /// 1 in all directions
-  template <int NDim>
-  constexpr Coords<NDim> allDimensions=
-	Coords<NDim>::getAll(1);
+  template <int nDims>
+  constexpr Coords<nDims> allDimensions=
+	Coords<nDims>::getAll(1);
   
   /// 0 in all directions
-  template <int NDim>
-  constexpr Coords<NDim> noDimensions=
-	Coords<NDim>::getAll(0);
+  template <int nDims>
+  constexpr Coords<nDims> noDimensions=
+	Coords<nDims>::getAll(0);
   
   /// All directions but a given one
-  template <int NDim,
+  template <int nDims,
 	    int Mu>
-  constexpr Coords<NDim> allDimensionsBut=
-	Coords<NDim>::getAllBut(1,Mu);
+  constexpr Coords<nDims> allDimensionsBut=
+	Coords<nDims>::getAllBut(1,Mu);
 }
 
 #endif

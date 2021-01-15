@@ -28,7 +28,7 @@ namespace maze
     
     /// Direction index
     using Direction=
-      typename world<nDims>::Direction;
+      typename World<nDims>::Direction;
     
     /// Keep trace if hashed or not
     static constexpr UseHashedCoords isHashed=

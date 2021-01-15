@@ -15,7 +15,7 @@ namespace maze
   ///
   /// In the naming scheme, Lx denotes a site
   template <int _NDims=4>
-  struct world
+  struct World
   {
     /// Number of dimensions
     static constexpr int nDims=
