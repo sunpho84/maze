@@ -65,6 +65,8 @@ namespace maze
   };
   
   /// Returns an indexer, deducing the index from Lx with the function
+  ///
+  /// The type F must derive from either LxIndexDeducer or IndexDeducerFromLx
   template <typename Index,
 	    typename HC,
 	    typename F>

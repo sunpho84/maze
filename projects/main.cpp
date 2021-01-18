@@ -1,3 +1,5 @@
+#include "lattice/geometry.hpp"
+#include "lattice/hCubeIndexer.hpp"
 #ifdef HAVE_CONFIG_H
 # include "config.hpp"
 #endif
@@ -8,7 +10,7 @@ using namespace maze;
 
 ///  index
 ///
-/// 
+///
 struct SiteMultiIndex;
 
 template <typename Lx,
@@ -32,8 +34,8 @@ struct SitesOrdering<Lx,TensorComps<C...>>
     lxOfSite(std::forward<Args>(args)...),
     siteOfLx(lxOfSite.data.getSize()) // hack
   {
-    
-    // forEachInTuple(extSizes, [this](const auto& e){std::get<decltype(e)>(sizes)=e;});
+    // forEachInTuple(extSizes, [this](const auto&
+    // e){std::get<decltype(e)>(sizes)=e;});
   }
 };
 
@@ -44,86 +46,89 @@ DECLARE_COMPONENT(BlockId,int64_t,DYNAMIC,blockId);
 DECLARE_COMPONENT(BlockedSite,int64_t,DYNAMIC,blockedSite);
 DECLARE_COMPONENT(BlockedEosSite,int64_t,DYNAMIC,blockedEosSite);
 
-/// Initializer for a even/odd split index
-template <typename G>
-struct EosIndexInitializer
-{
-  /// Reference geometry
-  const G& geo;
+
+
+// /// Initializer for a even/odd split index
+// template <typename G>
+// struct EosIndexInitializer
+// {
+//   /// Reference geometry
+//   const G& geo;
   
-  static constexpr int nDims=
-    G::nDims;
+//   static constexpr int nDims=
+//     G::nDims;
   
-  using Direction=
-    typename G::Direction;
+//   using Direction=
+//     typename G::Direction;
   
-  /// Even/Odd split dimension
-  const Direction eoSplitDimension;
+//   /// Even/Odd split dimension
+//   const Direction eoSplitDimension;
   
-  using LocSite=
-    typename G::LocSite;
+//   using LocSite=
+//     typename G::LocSite;
   
-  using Parity=
-    typename G::Parity;
+//   using Parity=
+//     typename G::Parity;
   
-  using ParityHCube=
-    HCube<nDims,Parity,NOT_HASHED>;
+//   using ParityHCube=
+//     HCube<nDims,Parity,NOT_HASHED>;
   
-  ParityHCube parityHCube;
+//   ParityHCube parityHCube;
   
-  /// Sizes of the even/odd split sites
-  const Coords<nDims> locEoSizes;
+//   /// Sizes of the even/odd split sites
+//   const Coords<nDims> locEoSizes;
   
-  /// Even/Odd split hypercube grouping two sites
-  const HCube<nDims,EosSite,UseHashedCoords::HASHED> eosHCube;
+//   /// Even/Odd split hypercube grouping two sites
+//   const HCube<nDims,EosSite,UseHashedCoords::HASHED> eosHCube;
   
-  /// Constructor
-  EosIndexInitializer(const Geometry<nDims>& geo,
-		      const Direction& eoSplitDimension) :
-    geo(geo),
-    eoSplitDimension(eoSplitDimension),
-    parityHCube(Coords<nDims>::versor(eoSplitDimension)+Coords<nDims>::getAll(1),allDimensions<nDims>),
-    locEoSizes(geo.locSizes/parityHCube.sizes),
-    eosHCube(locEoSizes,geo.isDirectionFullyLocal)
-  {
-    LOGGER<<"e/o split dimension: "<<eoSplitDimension<<endl;
-    LOGGER<<"loceo sizes: "<<locEoSizes<<endl;
-  }
+//   /// Constructor
+//   EosIndexInitializer(const Geometry<nDims>& geo,
+// 		      const Direction& eoSplitDimension) :
+//     geo(geo),
+//     eoSplitDimension(eoSplitDimension),
+//     parityHCube(Coords<nDims>::versor(eoSplitDimension)+
+// 		Coords<nDims>::getAll(1),allDimensions<nDims>),
+//     locEoSizes(geo.locSizes/parityHCube.sizes),
+//     eosHCube(locEoSizes,geo.isDirectionFullyLocal)
+//   {
+//     LOGGER<<"e/o split dimension: "<<eoSplitDimension<<endl;
+//     LOGGER<<"loceo sizes: "<<locEoSizes<<endl;
+//   }
   
-  /// Computes the two local sites of a given eosSite
-  std::array<LocSite,2> locLxPairOfEosSite(const EosSite& eosSite) const
-  {
-      /// Coordinates in the eos hypercube
-      const Coords<nDims> eosCoords=
-	eosHCube.coordsOfLx(eosSite);
+//   /// Computes the two local sites of a given eosSite
+//   std::array<LocSite,2> locLxPairOfEosSite(const EosSite& eosSite) const
+//   {
+//       /// Coordinates in the eos hypercube
+//       const Coords<nDims> eosCoords=
+// 	eosHCube.coordsOfLx(eosSite);
       
-      /// Result
-      std::array<LocSite,2> out;
+//       /// Result
+//       std::array<LocSite,2> out;
       
-      for(int i=0;i<2;i++)
-	{
-	  /// Coordinates
-	  Coords<nDims> lxCoords=
-	    eosCoords;
+//       for(int i=0;i<2;i++)
+// 	{
+// 	  /// Coordinates
+// 	  Coords<nDims> lxCoords=
+// 	    eosCoords;
 	  
-	  // Double in the eo dimension and increase in turn
-	  lxCoords[eoSplitDimension]=
-	    2*lxCoords[eoSplitDimension]+i;
+// 	  // Double in the eo dimension and increase in turn
+// 	  lxCoords[eoSplitDimension]=
+// 	    2*lxCoords[eoSplitDimension]+i;
 	  
-	  /// Local site
-	  const LocSite locLx=
-	    geo.computeLxOfLocCoords(lxCoords);
+// 	  /// Local site
+// 	  const LocSite locLx=
+// 	    geo.computeLxOfLocCoords(lxCoords);
 	  
-	  /// Parity of the site
-	  const Parity par=
-	    geo.parityOfLocLx(locLx);
+// 	  /// Parity of the site
+// 	  const Parity par=
+// 	    geo.parityOfLocLx(locLx);
 	  
-	  out[par]=locLx;
-	}
+// 	  out[par]=locLx;
+// 	}
       
-      return out;
-    }
-  };
+//       return out;
+//     }
+//  };
   
 // rank,eo,block,blocked
 
@@ -210,6 +215,42 @@ struct EosIndexInitializer
 //   }
 // };
 
+
+  /// Structure to compute Lebesgue index
+  template <typename HC,
+	    typename Index>
+  struct LxOfSomethingCalculator :
+    public IndexDeducerFromLx<LxOfSomethingCalculator<HC,Index>>
+  {
+    /// Reference hCube
+    const HC& hCube;
+    
+    /// Number of dimensions
+    static constexpr int nDims=
+      HC::nDims;
+    
+    /// Index type
+    using LxIndex=
+      typename HC::Index;
+    
+    /// Factors needed to compute Leb index
+    std::vector<std::vector<int>> factors;
+    
+    /// Compute the Lx of a given Lebesgue
+    Index operator()(const LxIndex& _ind) const
+    {
+      Index id;
+      
+      return id;
+    }
+    
+    /// Constructor
+    LxOfSomethingCalculator(const HC& hCube) : hCube(hCube)
+    {
+    }
+  };
+  
+
 void inMain(int narg,char** arg)
 {
   static constexpr int nDims=4;
@@ -229,15 +270,23 @@ void inMain(int narg,char** arg)
   using EoBlockedComps=
     TensorComps<Parity,BlockId,BlockedEosSite>;
   
+  HCubeIndexer<EoBlockedComps,Geometry<nDims>::LocGrid> EoBlockedComp(geometry.locGrid,
+								      LxOfSomethingCalculator<Geometry<nDims>::LocGrid,EoBlockedComps>(geometry.locGrid));
+  
   /// Sizes of the block
   const Coords<nDims> nBlockedSitesPerDir=
     {2,2,3,3};
   
-  EosIndexInitializer<Geometry<nDims>> eosIndexInitializer(geometry,nBlockedSitesPerDir.fastestLocalEvenDimension());
-  LOGGER<<"Parity grid: "<<eosIndexInitializer.parityHCube.sizes<<endl;
+  //EosIndexInitializer<Geometry<nDims>> eosIndexInitializer(geometry,nBlockedSitesPerDir.fastestLocalEvenDimension());
+  //LOGGER<<"Parity hypercube: "<<eosIndexInitializer.parityHCube.sizes<<endl;
   
+  /// Compute the parity
+  auto parityHCube=
+    geometry.getParityGrid(nBlockedSitesPerDir.fastestLocalEvenDimension());
+  
+  /// Size of the parity hypercube
   const auto& paritySizes=
-    eosIndexInitializer.parityHCube.sizes;
+    parityHCube.sizes;
   
   /// Number of blocks in each direction
   const Coords<nDims> nBlocksPerDir=

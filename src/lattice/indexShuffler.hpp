@@ -16,19 +16,20 @@ namespace maze
   /// Useful to avoid the accidental conversion between indices and to
   /// keep track of the input index
   template <typename In,
-	    typename Out,
-	    ENABLE_THIS_TEMPLATE_IF(std::is_convertible_v<In,int> and std::is_convertible_v<Out,int>)>
+	    typename Out// ,
+	    // ENABLE_THIS_TEMPLATE_IF(std::is_convertible_v<In,int> and std::is_convertible_v<Out,int>)
+	    >
   struct IndexShuffler
   {
+    // non va usato un vector ma un tensor, cosi' possiamo sottosccriverlo con tutte le componenti in una botta
+    
     /// Stores the lookup table
     Vector<Out> lookupTable;
     
     /// Constructor taking size and filler
-    template <typename F// ,
-	      // ENABLE_THIS_TEMPLATE_IF(std::is_invocable_v<F,In>//  and
-	      // 			      // std::is_convertible_v<std::invoke_result_t<F,In>,Out>
-	      // 			      )
-	      >
+    template <typename F,
+	      ENABLE_THIS_TEMPLATE_IF(std::is_invocable_v<F,In> and
+	      			      std::is_convertible_v<std::invoke_result_t<F,In>,Out>)>
     void fill(F f)
     {
       lookupTable.fill(f);
@@ -53,7 +54,8 @@ namespace maze
     }
     
     /// Default constructor
-    IndexShuffler(const size_t n=0) : lookupTable(n)
+    IndexShuffler(const size_t n=0) :
+      lookupTable(n)
     {
     }
     
@@ -102,9 +104,10 @@ namespace maze
       for(size_t i=0;i<n;i++)
 	{
 	  /// Index of the given element
-	  const In out=(*this)(i)();
+	  const Out out=(*this)(i);
+#warning not working
 	  
-	  res[out]=i;
+	  //	  res[out]=i;
       }
       
       return static_cast<IndexShuffler<Out,In>>(res);

@@ -36,6 +36,10 @@ namespace maze
     DECLARE_COMPONENT(Rank,int32_t,DYNAMIC,rank);
     DECLARE_COMPONENT(Parity,int8_t,2,eoDiscriminator);
     
+    /// Describing how to match even and odd sites
+    using ParityHCube=
+      HCube<nDims,Parity,NOT_HASHED>;
+    
     /// Print 0 or 1 for parity (which is of unprintable type)
     INLINE_FUNCTION
     friend std::ostream& operator<<(std::ostream& os,
@@ -151,6 +155,13 @@ namespace maze
 	locCoords+rankCoords*locGrid.sizes;
       
       return glbCoords;
+    }
+    
+    /// Returns an hypercube of size 1x1x...x2(mu)x1...
+    ParityHCube getParityGrid(const Direction& mu) const
+    {
+      return ParityHCube(Coords<nDims>::versor(mu)+
+			 Coords<nDims>::getAll(1),allDimensions<nDims>);
     }
     
     /// Constructor

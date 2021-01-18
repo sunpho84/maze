@@ -171,7 +171,7 @@ namespace maze
   								\
   /*! NAME component */						\
   using NAME=							\
-    TensorComp<NAME ## Signature,ANY,0>;				\
+    TensorComp<NAME ## Signature,ANY,0>;			\
 								\
   DECLARE_COMPONENT_FACTORY(FACTORY,NAME)
   
