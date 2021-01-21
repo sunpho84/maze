@@ -22,6 +22,7 @@ namespace maze
   struct IndexShuffler
   {
     // non va usato un vector ma un tensor, cosi' possiamo sottosccriverlo con tutte le componenti in una botta
+#warning questo va rivisitato
     
     /// Stores the lookup table
     Vector<Out> lookupTable;
@@ -41,7 +42,7 @@ namespace maze
 				      // std::is_convertible_v<std::invoke_result_t<F,In>,Out>
 				      )>
     IndexShuffler(const size_t& nEl,
-			     F f) :
+		  F f) :
       lookupTable(nEl)
     {
       fill(f);

@@ -34,7 +34,7 @@ namespace maze
     DECLARE_COMPONENT(GlbSite,int64_t,DYNAMIC,glbSite);
     DECLARE_COMPONENT(LocSite,int64_t,DYNAMIC,locSite);
     DECLARE_COMPONENT(Rank,int32_t,DYNAMIC,rank);
-    DECLARE_COMPONENT(Parity,int8_t,2,eoDiscriminator);
+    DECLARE_COMPONENT(Parity,int8_t,2,parity);
     
     /// Describing how to match even and odd sites
     using ParityHCube=

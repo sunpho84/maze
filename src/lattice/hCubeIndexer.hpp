@@ -13,9 +13,6 @@
 
 namespace maze
 {
-  /// Base expression
-  template <typename T>
-  struct Expr;
   DEFINE_FEATURE(IndexDeducerFromLx);
   
   DEFINE_FEATURE(LxIndexDeducer);
