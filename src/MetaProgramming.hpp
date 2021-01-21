@@ -13,6 +13,7 @@
 #include <metaProgramming/feature.hpp>
 #include <metaProgramming/hasMember.hpp>
 #include <metaProgramming/nonConstMethod.hpp>
+#include <metaProgramming/tagDispatch.hpp>
 #include <metaProgramming/templateEnabler.hpp>
 
 

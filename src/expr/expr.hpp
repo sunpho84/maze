@@ -9,6 +9,8 @@
 #include <type_traits>
 
 #include "debug/crasher.hpp"
+#include "metaProgramming/nonConstMethod.hpp"
+#include "metaProgramming/tagDispatch.hpp"
 #include "tensors/complex.hpp"
 #include "tensors/component.hpp"
 #include "tensors/componentsList.hpp"
@@ -45,6 +47,8 @@ namespace maze
     
   private:
     
+    PROVIDE_DEFEAT_METHOD(T);
+    
     DECLARE_DISPATCHABLE_TAG(FULLY_EVALUATE);
     DECLARE_DISPATCHABLE_TAG(PARTIALLY_EVALUATE);
     DECLARE_DISPATCHABLE_TAG(BIND);
@@ -59,9 +63,12 @@ namespace maze
       auto orderedTc=
 	fillTuple<TensorComps<TC...>>(unorderedTc.deFeat()...);
       
-      /// Call the evaluation TBI
+      return deFeat().eval(orderedTc);
     }
     
+    /// Subscribe partially evaluating
+    ///
+    /// Call the partialEval method
     template <typename...TC>
     void _subscribe(PARTIALLY_EVALUATE,
 		   const TensorCompFeat<TC>&...tc)
@@ -71,6 +78,9 @@ namespace maze
       /// TBI
     }
     
+    /// Subcribe binding the component
+    ///
+    /// Returns a bound expression
     template <typename...TC>
     void _subscribe(BIND,
 		   const TensorCompFeat<TC>&...tc)
@@ -96,10 +106,14 @@ namespace maze
       static constexpr bool fullyEval=
 	(nComps==1);
       
-      return _subscribe(std::conditional_t<fullyEval,FULLY_EVALUATE,BIND>(),
+      using HowToEvaluate=
+	std::conditional_t<fullyEval,FULLY_EVALUATE,BIND>;
+      
+      return _subscribe(DISPATCH(HowToEvaluate),
 			tc.deFeat());
     }
     
+    /// Subscribe many components
     template <typename...TC>
     decltype(auto) operator()(const TensorCompFeat<TC>&...tc) const
     {
@@ -113,9 +127,16 @@ namespace maze
       static constexpr bool fullyEval=
 	(nSubComps==nComps);
       
-      return _subscribe(std::conditional_t<fullyEval,FULLY_EVALUATE,BIND>(),
+      using HowToEvaluate=
+	std::conditional_t<fullyEval,FULLY_EVALUATE,BIND>;
+      
+      return _subscribe(DISPATCH(HowToEvaluate),
 			tc.deFeat()...);
     }
+    
+    PROVIDE_ALSO_NON_CONST_METHOD_GPU(operator());
+    
+    PROVIDE_ALSO_NON_CONST_METHOD_GPU(operator[]);
   };
 }
 

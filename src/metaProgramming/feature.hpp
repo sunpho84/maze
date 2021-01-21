@@ -14,14 +14,6 @@
 
 namespace maze
 {
-  /// Provides a simple struct with the given name
-  ///
-  /// Can be used to distinguish function in place of SFINAE
-#define DECLARE_DISPATCHABLE_TAG(NAME) \
-  struct NAME			      \
-  {				      \
-  }
-  
   /// Define a feature
 #define DEFINE_FEATURE(FEATURE_NAME)			\
   template <typename Defeated>				\
