@@ -1,6 +1,7 @@
 #ifndef _TENSOR_HPP
 #define _TENSOR_HPP
 
+#include <type_traits>
 #ifdef HAVE_CONFIG_H
 # include "config.hpp"
 #endif
@@ -9,7 +10,7 @@
 ///
 /// \brief Implements all functionalities of tensors
 
-//#include <expr/expr.hpp>
+#include <expr/expr.hpp>
 #include <tensors/tensorDecl.hpp>
 #include <tensors/complex.hpp>
 #include <resources/storLoc.hpp>
@@ -30,7 +31,7 @@ namespace maze
 	    typename...TC,
 	    Stackable IsStackable>
   struct THIS : public
-    // Expr<THIS>,
+    Expr<THIS,TensorComps<TC...>>,
     ComplexSubscribe<THIS>,
     TensorFeat<THIS>
   {
@@ -402,6 +403,25 @@ namespace maze
     
     // PROVIDE_ALSO_NON_CONST_METHOD(getRawAccess);
     
+    /// Provides a _subscribe method
+#define PROVIDE__SUBSCRIBE_METHOD(CONST_ATTR,CONST_AS_BOOL)		\
+    /*! Operator to take a const reference to a given list of comps  */	\
+    /*!                                                              */ \
+    /*! This method should not be called directly: it will be called */	\
+    /*! by the [] operator of Expr base class                        */	\
+    template <typename _STC>						\
+    CUDA_HOST_DEVICE INLINE_FUNCTION					\
+    auto _subscribe(_STC&& sTc) const /*!< Subscribed components */	\
+    {									\
+      /*! Subscribed components */					\
+      using STC=std::decay_t<_STC>;					\
+									\
+      return								\
+	TensorSlice<CONST_AS_BOOL,THIS,SubsComps>			\
+	(*this,std::forwaSubsComps(cFeat.deFeat()));				\
+    }
+
+#if 0
     /// Provide subscribe operator when returning a reference
     ///
     /// \todo move to tag dispatch, so we can avoid the horrible sfinae subtleties
@@ -426,6 +446,8 @@ namespace maze
     PROVIDE_SUBSCRIBE_OPERATOR(const, true);
     
 #undef PROVIDE_SUBSCRIBE_OPERATOR
+
+    #endif
     
   };
   

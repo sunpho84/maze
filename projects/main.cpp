@@ -1,5 +1,7 @@
 #include "lattice/geometry.hpp"
 #include "lattice/hCubeIndexer.hpp"
+#include "tensors/componentsList.hpp"
+#include "tensors/tensorDecl.hpp"
 #ifdef HAVE_CONFIG_H
 # include "config.hpp"
 #endif
@@ -249,15 +251,21 @@ DECLARE_COMPONENT(BlockedEosSite,int64_t,DYNAMIC,blockedEosSite);
     {
     }
   };
-  
+
+
 
 void inMain(int narg,char** arg)
 {
+  /// Number of dimensions
   static constexpr int nDims=4;
   
+  /// Global lattice size
   const Coords<nDims> glbSizes{10,4,9,12};
+  
+  /// Number or ranks per direction
   const Coords<nDims> nRanksPerDim{1,1,1,2};
   
+  /// Lattice geometry
   Geometry<nDims> geometry(glbSizes,nRanksPerDim);
   
   using LocSite=
@@ -272,6 +280,10 @@ void inMain(int narg,char** arg)
   
   HCubeIndexer<EoBlockedComps,Geometry<nDims>::LocGrid> EoBlockedComp(geometry.locGrid,
 								      LxOfSomethingCalculator<Geometry<nDims>::LocGrid,EoBlockedComps>(geometry.locGrid));
+
+  
+  Tensor<TensorComps<Parity>> test;
+  test[geometry.parity(0)];
   
   /// Sizes of the block
   const Coords<nDims> nBlockedSitesPerDir=
