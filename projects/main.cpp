@@ -283,7 +283,7 @@ void inMain(int narg,char** arg)
 
   
   Tensor<TensorComps<Parity>> test;
-  test[geometry.parity(0)];
+  test[geometry.parity(0)]=0;
   
   /// Sizes of the block
   const Coords<nDims> nBlockedSitesPerDir=

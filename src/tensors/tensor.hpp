@@ -1,6 +1,7 @@
 #ifndef _TENSOR_HPP
 #define _TENSOR_HPP
 
+#include "metaProgramming/nonConstMethod.hpp"
 #include <type_traits>
 #ifdef HAVE_CONFIG_H
 # include "config.hpp"
@@ -134,6 +135,8 @@ namespace maze
     PROVIDE_SIMDIFY(/* non const */);
     
 #undef PROVIDE_SIMDIFY
+
+#if 0
     
     /// Provide eval method, converting to fundamental
 #define PROVIDE_EVAL_METHOD(CONST_ATTR)					\
@@ -152,6 +155,7 @@ namespace maze
     PROVIDE_EVAL_METHOD(const);
     
 #undef PROVIDE_EVAL_METHOD
+ #endif
     
     /// Storage Location
     static constexpr
@@ -403,6 +407,17 @@ namespace maze
     
     // PROVIDE_ALSO_NON_CONST_METHOD(getRawAccess);
     
+    /// Evaluate, returning a reference to the fundamental type
+    const Fund& eval(const TensorComps<TC...>& tc) const
+    {
+      return data[index(tc)];
+    }
+    
+    PROVIDE_ALSO_NON_CONST_METHOD_GPU(eval);
+    
+#if 0
+    /// We need to rethink this in the perspective of the partial evaluation
+    
     /// Provides a _subscribe method
 #define PROVIDE__SUBSCRIBE_METHOD(CONST_ATTR,CONST_AS_BOOL)		\
     /*! Operator to take a const reference to a given list of comps  */	\
@@ -420,8 +435,7 @@ namespace maze
 	TensorSlice<CONST_AS_BOOL,THIS,SubsComps>			\
 	(*this,std::forwaSubsComps(cFeat.deFeat()));				\
     }
-
-#if 0
+    
     /// Provide subscribe operator when returning a reference
     ///
     /// \todo move to tag dispatch, so we can avoid the horrible sfinae subtleties
