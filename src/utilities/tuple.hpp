@@ -156,48 +156,37 @@ namespace maze
   
   /////////////////////////////////////////////////////////////////
   
-  namespace impl
-  {
-    template <typename T>
-    /// Returns a tuple filled with a list of arguments
-    ///
-    /// Internal implementation, no more arguments to parse
-    void _fillTuple(T&)
-    {
-    }
-    
-    /// Returns a tuple filled with a list of arguments
-    ///
-    /// Internal implementation, calls recursively
-    template <typename T,
-	      typename Head,
-	      typename...Tail>
-    void _fillTuple(T& t,                ///< Tuple to fill
-		   const Head& head,    ///< Argument to fill
-		   const Tail&...tail)  ///< Next arguments, filled recursively
-    {
-      std::get<Head>(t)=head;
-      
-      _fillTuple(t,tail...);
-    }
-  }
-  
   /// Returns a tuple filled with the arguments of another tuple
   ///
   /// The arguments not passed are null-initialized
-  template <typename T,     ///< Tuple type to be returned, to be provided
-	    typename...Tp>  ///< Tuple arguments to be filled in
-  T fillTuple(const std::tuple<Tp...>& in) ///< Tuple containing the arguments to be passed
+  template <typename ResTuple,     ///< Tuple type to be returned, to be provided
+	    typename...Args>       ///< Tuple arguments to be filled in
+  ResTuple fillTuple(const std::tuple<Args...>& args) ///< Tuple containing the arguments to be passed
   {
     /// Returned tuple
-    T t;
+    ResTuple res;
     
-    impl::_fillTuple(t,std::get<Tp>(in)...);
+    [](auto...){}((std::get<Args>(res)=std::get<Args>(args))...);
     
     return
-      t;
+      res;
   }
   
+  /// Returns a tuple filled with a list of arguments
+  ///
+  /// The arguments not passed are null-initialized
+  template <typename ResTuple,     ///< Tuple type to be returned, to be provided
+	    typename...Args>       ///< Tuple arguments to be filled in
+  ResTuple fillTuple(const Args&...args) ///< Tuple containing the arguments to be passed
+  {
+    /// Returned tuple
+    ResTuple res;
+    
+    [](auto...){}((std::get<Args>(res)=args)...);
+    
+    return
+      res;
+  }
   namespace impl
   {
     template <typename I,
