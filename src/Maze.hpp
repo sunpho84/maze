@@ -11,6 +11,7 @@
 
 #include <Base.hpp>
 #include <Debug.hpp>
+#include <Expr.hpp>
 #include <Lattice.hpp>
 #include <MetaProgramming.hpp>
 #include <Resources.hpp>
