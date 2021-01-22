@@ -18,7 +18,7 @@ namespace maze
   DEFINE_FEATURE(LxIndexDeducer);
   
   /// Keep a lookup table for lx to a given index
-  template <typename Index,
+  template <typename IndexComps,
 	    typename HC>
   struct HCubeIndexer
   {
@@ -34,18 +34,18 @@ namespace maze
       typename HC::Index;
     
     /// Index of a given lexicographic site
-    IndexShuffler<LxIndex,Index> idOfLx;
+    IndexShuffler<TensorComps<LxIndex>,IndexComps> idOfLx;
     
     /// Lexicographic site of a given index
-    IndexShuffler<Index,LxIndex> lxOfId;
+    IndexShuffler<IndexComps,TensorComps<LxIndex>> lxOfId;
     
     /// Constructor taking a reference hypercube and a function to compute id from lx
     template <typename F>
     HCubeIndexer(const HC& hCube,
 		 const IndexDeducerFromLx<F> &indexFromLx) :
       hCube(hCube),
-      idOfLx(hCube.vol)
-    {
+      idOfLx(make_tuple(hCube.vol))
+    {Bisogna passare la taglia massima delle componenti di out
       idOfLx.fill(indexFromLx.deFeat());
       lxOfId=idOfLx.transpose();
     }
