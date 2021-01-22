@@ -326,7 +326,7 @@ namespace maze
     /// Initialize the tensor with the knowledge of the dynamic size
     template <typename...TD,
 	      ENABLE_THIS_TEMPLATE_IF(sizeof...(TD)>=1)>
-    Tensor(const TensorCompFeat<TD>&...tdFeat) :
+    explicit Tensor(const TensorCompFeat<TD>&...tdFeat) :
       dynamicSizes{initializeDynSizes((DynamicComps*)nullptr,tdFeat.deFeat()...)},
       data(staticSize*(tdFeat.deFeat()*...))
     {
@@ -344,7 +344,7 @@ namespace maze
     /// Initialize the tensor when sizes are passed as a TensorComps
     template <typename...C>
     CUDA_HOST_DEVICE
-    Tensor(const TensorComps<C...>& tc) :
+    explicit Tensor(const TensorComps<C...>& tc) :
       Tensor(std::get<C>(tc)...)
     {
     }
@@ -352,7 +352,8 @@ namespace maze
     
     /// Move constructor
     CUDA_HOST_DEVICE
-    Tensor(Tensor<TensorComps<TC...>,Fund,SL>&& oth) : dynamicSizes(oth.dynamicSizes),data(std::move(oth.data))
+    Tensor(Tensor<TensorComps<TC...>,Fund,SL>&& oth) :
+      dynamicSizes(oth.dynamicSizes),data(std::move(oth.data))
     {
     }
     
@@ -460,7 +461,7 @@ namespace maze
     PROVIDE_SUBSCRIBE_OPERATOR(const, true);
     
 #undef PROVIDE_SUBSCRIBE_OPERATOR
-
+    
     #endif
     
   };
