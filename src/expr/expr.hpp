@@ -1,6 +1,8 @@
 #ifndef _EXPR_EXPR_HPP
 #define _EXPR_EXPR_HPP
 
+#include "metaProgramming/cudaMacros.hpp"
+#include "unroll/inliner.hpp"
 #ifdef HAVE_CONFIG_H
 # include "config.hpp"
 #endif
@@ -55,6 +57,7 @@ namespace maze
     
     /// Subscribe evaluating the expression
     template <typename...TC>
+    INLINE_FUNCTION CUDA_HOST_DEVICE
     decltype(auto)_subscribe(FULLY_EVALUATE,
 			     const TensorCompFeat<TC>&...unorderedTc)
       const
@@ -70,6 +73,7 @@ namespace maze
     ///
     /// Call the partialEval method
     template <typename...TC>
+    INLINE_FUNCTION CUDA_HOST_DEVICE
     void _subscribe(PARTIALLY_EVALUATE,
 		   const TensorCompFeat<TC>&...tc)
       const
@@ -82,6 +86,7 @@ namespace maze
     ///
     /// Returns a bound expression
     template <typename...TC>
+    INLINE_FUNCTION CUDA_HOST_DEVICE
     void _subscribe(BIND,
 		   const TensorCompFeat<TC>&...tc)
       const
@@ -98,6 +103,7 @@ namespace maze
     
     /// Subscrbe a single component
     template <typename TC>
+    INLINE_FUNCTION CUDA_HOST_DEVICE
     decltype(auto) operator[](const TensorCompFeat<TC>& tc) const
     {
       static_assert((TupleHasType<TC,ExpTCs>),"Type not present in the expression");
@@ -109,12 +115,15 @@ namespace maze
       using HowToEvaluate=
 	std::conditional_t<fullyEval,FULLY_EVALUATE,BIND>;
       
+      static_assert(std::is_same_v<HowToEvaluate,FULLY_EVALUATE>,"Cannot bind yet");
+      
       return _subscribe(DISPATCH(HowToEvaluate),
 			tc.deFeat());
     }
     
     /// Subscribe many components
     template <typename...TC>
+    INLINE_FUNCTION CUDA_HOST_DEVICE
     decltype(auto) operator()(const TensorCompFeat<TC>&...tc) const
     {
       static_assert((TupleHasType<TC,ExpTCs>&...),"Types not present in the expression");
@@ -130,8 +139,18 @@ namespace maze
       using HowToEvaluate=
 	std::conditional_t<fullyEval,FULLY_EVALUATE,BIND>;
       
+      static_assert(std::is_same_v<HowToEvaluate,FULLY_EVALUATE>,"Cannot bind yet");
+      
       return _subscribe(DISPATCH(HowToEvaluate),
 			tc.deFeat()...);
+    }
+    
+    /// Subscribe many components in a tuple format
+    template <typename...TC>
+    INLINE_FUNCTION CUDA_HOST_DEVICE
+    decltype(auto) operator()(const TensorComps<TC>&...tc) const
+    {
+      return (*this)(std::get<TC>(tc)...);
     }
     
     PROVIDE_ALSO_NON_CONST_METHOD_GPU(operator());
