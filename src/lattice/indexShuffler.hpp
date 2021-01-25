@@ -107,7 +107,7 @@ namespace maze
     /// Returns the index
     const Out& operator()(const In& in) const
     {
-      return lookupTable[in];
+      return lookupTable(in);
     }
     
     /// Verifies the indexing
@@ -124,7 +124,8 @@ namespace maze
 					      used(out)=n;
 					    });
       
-      loopOnAllComponentsValues(lookupTable,[this,&used,&n](const LookupIndex& index,const In& in)
+      loopOnAllComponentsValues(lookupTable,[this,&used,&n](const LookupIndex& index,
+							    const In& in)
 					    {
 					      /// Take the out index
 					      const Out& out=
@@ -138,14 +139,17 @@ namespace maze
     }
     
     /// Returns the transpose shuffler
-    IndexShuffler<Out,In> transpose() const
+    IndexShuffler<Out,In> transpose(const Out& initSizes) const
     {
       /// Result
-      Tensor<Out,In> res;//(n,n /* as initializer */);
+      Tensor<Out,In> res(initSizes);
       
-      loopOnAllComponentsValues(lookupTable,[this,&res](const LookupIndex& i,const In& in)
+      loopOnAllComponentsValues(lookupTable,[this,&res](const LookupIndex& i,
+							const In& in)
 					    {
+					      /// Take not of the ouutput
 					      const Out out=(*this)(in);
+					      
 					      res(out)=in;
 					    });
       
