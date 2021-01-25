@@ -33,9 +33,9 @@ namespace maze
     std::vector<std::vector<int>> factors;
     
     /// Compute the Lx of a given Lebesgue
-    LxIndex operator()(const LebIndex& _Leb) const
+    LxIndex operator()(const TensorComps<LebIndex>& _Leb) const
     {
-      LebIndex Leb=_Leb;
+      LebIndex Leb=std::get<LebIndex>(_Leb);
       
       /// Number of factors
       const size_t& nFactors=factors.size();
@@ -113,7 +113,11 @@ namespace maze
 	    typename HC>
   auto getLebesgueIndexer(const HC& hCube)
   {
-    return getHCubeIndexer<LebSite>(hCube,getLxOfLebesgueCalculator<LebSite>(hCube));
+    /// Components to be used for the index
+    using LebSiteComps=
+      TensorComps<LebSite>;
+    
+    return getHCubeIndexer<LebSiteComps>(hCube,getLxOfLebesgueCalculator<LebSite>(hCube),LebSiteComps{static_cast<LebSite>(hCube.vol)});
   }
 }
 

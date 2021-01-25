@@ -10,6 +10,7 @@
 #include <lattice/hCube.hpp>
 #include <lattice/indexShuffler.hpp>
 #include <metaProgramming/feature.hpp>
+#include <tensors/componentsList.hpp>
 
 namespace maze
 {
@@ -33,44 +34,57 @@ namespace maze
     using LxIndex=
       typename HC::Index;
     
+    /// Components of the Lx index
+    using LxComps=
+      TensorComps<LxIndex>;
+    
+    /// Components sizes of the Index which need initialization
+    using IndexDynComps=
+      GetDynamicCompsOfTensorComps<IndexComps>;
+    
     /// Index of a given lexicographic site
-    IndexShuffler<TensorComps<LxIndex>,IndexComps> idOfLx;
+    IndexShuffler<LxComps,IndexComps> idOfLx;
     
     /// Lexicographic site of a given index
-    IndexShuffler<IndexComps,TensorComps<LxIndex>> lxOfId;
+    IndexShuffler<IndexComps,LxComps> lxOfId;
     
     /// Constructor taking a reference hypercube and a function to compute id from lx
     template <typename F>
     HCubeIndexer(const HC& hCube,
-		 const IndexDeducerFromLx<F> &indexFromLx) :
+		 const IndexDeducerFromLx<F> &indexFromLx,
+		 const IndexDynComps& idMaxes) : ///< Maximal values of each component of the id
       hCube(hCube),
-      idOfLx(make_tuple(hCube.vol))
-    {Bisogna passare la taglia massima delle componenti di out
+      idOfLx(std::make_tuple(hCube.vol)),
+      lxOfId(IndexDynComps{})
+    {
       idOfLx.fill(indexFromLx.deFeat());
-      lxOfId=idOfLx.transpose();
+      lxOfId=idOfLx.transpose(idMaxes);
     }
     
     template <typename F>
     HCubeIndexer(const HC& hCube,
-		 const LxIndexDeducer<F> &indexOfLx) :
+		 const LxIndexDeducer<F> &indexOfLx,
+		 const IndexDynComps& idMaxes) : ///< Maximal values of each component of the id
       hCube(hCube),
-      lxOfId(hCube.vol)
+      idOfLx(LxComps{}),
+      lxOfId(idMaxes)
     {
       lxOfId.fill(indexOfLx.deFeat());
-      idOfLx=lxOfId.transpose();
+      idOfLx=lxOfId.transpose(LxComps{hCube.vol});
     }
   };
   
   /// Returns an indexer, deducing the index from Lx with the function
   ///
   /// The type F must derive from either LxIndexDeducer or IndexDeducerFromLx
-  template <typename Index,
+  template <typename IndexComps,
 	    typename HC,
 	    typename F>
-  HCubeIndexer<Index,HC> getHCubeIndexer(const HC& hCube,
-					 const F& f)
+  HCubeIndexer<IndexComps,HC> getHCubeIndexer(const HC& hCube,
+					 const F& f,
+					 const GetDynamicCompsOfTensorComps<IndexComps>& indexCompsInitializers)
   {
-    return HCubeIndexer<Index,HC>(hCube,f);
+    return HCubeIndexer<IndexComps,HC>(hCube,f,indexCompsInitializers);
   }
 }
 

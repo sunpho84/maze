@@ -218,39 +218,39 @@ DECLARE_COMPONENT(BlockedEosSite,int64_t,DYNAMIC,blockedEosSite);
 // };
 
 
-  /// Structure to compute Lebesgue index
-  template <typename HC,
-	    typename Index>
-  struct LxOfSomethingCalculator :
-    public IndexDeducerFromLx<LxOfSomethingCalculator<HC,Index>>
-  {
-    /// Reference hCube
-    const HC& hCube;
+  // /// Structure to compute Lebesgue index
+  // template <typename HC,
+  // 	    typename Index>
+  // struct LxOfSomethingCalculator :
+  //   public IndexDeducerFromLx<LxOfSomethingCalculator<HC,Index>>
+  // {
+  //   /// Reference hCube
+  //   const HC& hCube;
     
-    /// Number of dimensions
-    static constexpr int nDims=
-      HC::nDims;
+  //   /// Number of dimensions
+  //   static constexpr int nDims=
+  //     HC::nDims;
     
-    /// Index type
-    using LxIndex=
-      typename HC::Index;
+  //   /// Index type
+  //   using LxIndex=
+  //     typename HC::Index;
     
-    /// Factors needed to compute Leb index
-    std::vector<std::vector<int>> factors;
+  //   /// Factors needed to compute Leb index
+  //   std::vector<std::vector<int>> factors;
     
-    /// Compute the Lx of a given Lebesgue
-    Index operator()(const LxIndex& _ind) const
-    {
-      Index id;
+  //   /// Compute the Lx of a given Lebesgue
+  //   Index operator()(const LxIndex& _ind) const
+  //   {
+  //     Index id;
       
-      return id;
-    }
+  //     return id;
+  //   }
     
-    /// Constructor
-    LxOfSomethingCalculator(const HC& hCube) : hCube(hCube)
-    {
-    }
-  };
+  //   /// Constructor
+  //   LxOfSomethingCalculator(const HC& hCube) : hCube(hCube)
+  //   {
+  //   }
+  // };
 
 
 
@@ -268,6 +268,8 @@ void inMain(int narg,char** arg)
   /// Lattice geometry
   Geometry<nDims> geometry(glbSizes,nRanksPerDim);
   
+  auto ind=getLebesgueIndexer<LebSite>(geometry.locGrid);
+ 
   using LocSite=
     Geometry<nDims>::LocSite;
   
@@ -275,12 +277,15 @@ void inMain(int narg,char** arg)
     Geometry<nDims>::Parity;
   
   //(rank,)eo,block,blocked
-  using EoBlockedComps=
-    TensorComps<Parity,BlockId,BlockedEosSite>;
+  // using EoBlockedComps=
+  //   TensorComps<Parity,BlockId,BlockedEosSite>;
   
-  HCubeIndexer<EoBlockedComps,Geometry<nDims>::LocGrid> EoBlockedComp(geometry.locGrid,
-								      LxOfSomethingCalculator<Geometry<nDims>::LocGrid,EoBlockedComps>(geometry.locGrid));
-
+//   TensorComps<BlockId,BlockedEosSite> eoBlockedCompInits{};
+// #warning
+//   HCubeIndexer<EoBlockedComps,Geometry<nDims>::LocGrid> EoBlockedComp(geometry.locGrid,
+// 								      LxOfSomethingCalculator<Geometry<nDims>::LocGrid,EoBlockedComps>(geometry.locGrid),eoBlockedCompInits
+// 								      );
+  
   
   Tensor<TensorComps<Parity>> test;
   test[geometry.parity(0)]=0;
