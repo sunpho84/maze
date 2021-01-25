@@ -70,6 +70,34 @@ namespace maze
     {
     }
     
+    /// Move constructor
+    IndexShuffler(IndexShuffler&& oth) :
+      lookupTable(std::move(oth.lookupTable))
+    {
+    }
+    
+    /// Move assignment
+    IndexShuffler& operator=(IndexShuffler&& oth)
+    {
+      std::swap(lookupTable,oth.lookupTable);
+      
+      return *this;
+    }
+    
+    /// Copy constructor
+    IndexShuffler(const IndexShuffler& oth) :
+      lookupTable(oth.lookupTable)
+    {
+    }
+    
+    /// Copy assignment
+    IndexShuffler& operator=(const IndexShuffler& oth)
+    {
+      lookupTable=oth.lookupTable;
+      
+      return *this;
+    }
+    
     /// Default constructor
     IndexShuffler(const In& inMax) :
       lookupTable(inMax)

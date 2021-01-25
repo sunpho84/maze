@@ -175,7 +175,7 @@ namespace maze
       TupleFilter<SizeIsKnownAtCompileTime<false>::t,TensorComps<TC...>>;
     
     /// Sizes of the dynamic components
-    const DynamicComps dynamicSizes;
+    DynamicComps dynamicSizes;
     
     /// Static size
     static constexpr Index staticSize=
@@ -357,15 +357,27 @@ namespace maze
     {
     }
     
-    // /// Copy constructor
-    // CUDA_HOST_DEVICE
-    // Tensor(const Tensor& oth) :
-    //   dynamicSizes(oth.dynamicSizes),
-    //   data(oth.data.getSize())
-    // {
-    //   static_cast<Expr<Tensor>>(*this)=
-    // 	static_cast<const Expr<Tensor>&>(oth);
-    // }
+    /// Move assignment
+    CUDA_HOST_DEVICE
+    Tensor& operator=(Tensor&& oth)
+    {
+      std::swap(dynamicSizes,oth.dynamicSizes);
+      std::swap(data,oth.data);
+      
+      return *this;
+    }
+    
+    /// Copy constructor
+    CUDA_HOST_DEVICE
+    Tensor(const Tensor& oth) :
+      dynamicSizes(oth.dynamicSizes),
+      data(oth.data.getSize())
+    {
+      #warning Mica labbiamo implementato
+      
+      // static_cast<Expr<Tensor>>(*this)=
+      // 	static_cast<const Expr<Tensor>&>(oth);
+    }
     
     /// HACK
     ///

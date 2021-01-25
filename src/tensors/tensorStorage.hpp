@@ -37,13 +37,13 @@ namespace maze
     struct DynamicStorage
     {
       /// Hold info if it is a reference
-      const bool isRef;
+      bool isRef;
       
       /// Storage
       Fund* data;
       
       /// Allocated size
-      const Size dynSize;
+      Size dynSize;
       
       /// Returns the size
       constexpr Size getSize()
@@ -94,15 +94,26 @@ namespace maze
       CUDA_HOST_DEVICE
       DynamicStorage(DynamicStorage&& oth) :
 	isRef(oth.isRef),
-	dynSize(oth.dynSize),
-	data(oth.data)
+	data(oth.data),
+	dynSize(oth.dynSize)
       {
 	oth.isRef=true;
 	oth.data=nullptr;
 	oth.dynSize=0;
       }
       
-#ifndef COMPILING_FOR_DEVICE
+      /// Move assignment
+      CUDA_HOST_DEVICE
+      DynamicStorage& operator=(DynamicStorage&& oth)
+      {
+	std::swap(isRef,oth.isRef);
+	std::swap(data,oth.data);
+	std::swap(dynSize,oth.dynSize);
+	
+	return *this;
+      }
+      
+      #ifndef COMPILING_FOR_DEVICE
       /// Destructor deallocating the memory
       ~DynamicStorage()
       {
@@ -145,7 +156,7 @@ namespace maze
       
       /// Copy constructor
       CUDA_HOST_DEVICE
-      StackStorage(const StackStorage& oth)
+      explicit StackStorage(const StackStorage& oth)
       {
 	memcpy(this->data,oth.data,StaticSize);
       }
@@ -223,6 +234,24 @@ namespace maze
     CUDA_HOST_DEVICE
     TensorStorage(TensorStorage&& oth) : data(std::move(oth.data))
     {
+    }
+    
+    /// Copy assignemnt
+    CUDA_HOST_DEVICE
+    TensorStorage& operator=(const TensorStorage& oth)
+    {
+      data=oth.data;
+      
+      return *this;
+    }
+    
+    /// Move assignemnt
+    CUDA_HOST_DEVICE
+    TensorStorage& operator=(TensorStorage&& oth)
+    {
+      data=std::move(oth.data);
+      
+      return *this;
     }
     
     /// Access to a sepcific value via subscribe operator
