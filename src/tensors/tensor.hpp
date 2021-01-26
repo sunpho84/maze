@@ -2,6 +2,7 @@
 #define _TENSOR_HPP
 
 #include "metaProgramming/nonConstMethod.hpp"
+#include "tensors/component.hpp"
 #include <type_traits>
 #ifdef HAVE_CONFIG_H
 # include "config.hpp"
@@ -64,6 +65,10 @@ namespace maze
     /// Components
     using Comps=
       TensorComps<TC...>;
+    
+    /// Mergeable components
+    using MergeableComps=
+      std::tuple<Comps>;
     
     /// Get the I-th component
     template <int I>
@@ -136,6 +141,12 @@ namespace maze
     
 #undef PROVIDE_SIMDIFY
 
+    template <typename...MergedGroups>
+    auto mergeCompontents()
+    {
+#warning
+      }
+    
 #if 0
     
     /// Provide eval method, converting to fundamental

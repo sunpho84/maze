@@ -1,7 +1,3 @@
-#include "lattice/geometry.hpp"
-#include "lattice/hCubeIndexer.hpp"
-#include "tensors/componentsList.hpp"
-#include "tensors/tensorDecl.hpp"
 #ifdef HAVE_CONFIG_H
 # include "config.hpp"
 #endif
@@ -253,9 +249,16 @@ DECLARE_COMPONENT(BlockedEosSite,int64_t,DYNAMIC,blockedEosSite);
   // };
 
 
-
 void inMain(int narg,char** arg)
 {
+  using A=std::tuple<int,char,int64_t,uint32_t>;
+  using B=std::tuple<char,int64_t>;
+  
+  using C=TupleGroupTypes<A,B>;
+  C c;
+  //int& i=
+  std::get<std::tuple<char,int64_t>>(c);
+  
   /// Number of dimensions
   static constexpr int nDims=4;
   

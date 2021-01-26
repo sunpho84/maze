@@ -6,7 +6,9 @@
 /// \brief Functionalities on top of std::tuple
 
 #include <tuple>
+#include <utility>
 
+#include <type_traits>
 #include <utilities/math.hpp>
 
 namespace maze
@@ -202,38 +204,146 @@ namespace maze
     };
   }
   
+  /////////////////////////////////////////////////////////////////
+  
   /// Type of the tuple obtained removing last element
   template <typename Tp>
   using TupleAllButLast=
     typename impl::_TupleElOfList<std::make_index_sequence<std::tuple_size<Tp>::value-1>,Tp>::type;
-
+  
   namespace impl
   {
-    /// Type of the tuple obtained catting two tuples
+    /// Type of the tuple obtained removing first element
     ///
-    /// Forward declaration, internal implementation
-    template <typename TP1,
-	      typename TP2>
-    struct _TupleCat;
-    
-    /// Type of the tuple obtained catting two tuples
+    /// Helper function
+    template <typename Head,
+	      typename...Tail>
+    auto _tupleAllButFirstHelper(std::tuple<Head,Tail...>*) -> std::tuple<Tail...>
+    {
+    }
+  }
+  
+  /// Type of the tuple obtained removing first element
+  template <typename Tp>
+  using TupleAllButFirst=
+    decltype(impl::_tupleAllButFirstHelper((Tp*)nullptr));
+  
+  /// Type of the tuple obtained catting two tuples
+  template <typename...TP>
+  using TupleCat=
+    decltype(std::tuple_cat(std::declval<TP>()...));
+  
+  /////////////////////////////////////////////////////////////////
+  
+  namespace impl
+  {
+    /// Position of type T in the tuple
     ///
     /// Internal implementation
-    template <typename...Tp1,
-	      typename...Tp2>
-    struct _TupleCat<std::tuple<Tp1...>,
-		    std::tuple<Tp2...>>
+    template <typename T,
+	      typename...L>
+    constexpr int _posOfType(T*,
+			    std::tuple<L...>*)
     {
+      /// Holds whethere is the same
+      constexpr bool isSame[]=
+	{std::is_same<T,L>::value...};
+      
+      int i=0;
+      while(i<(int)sizeof...(L) and not isSame[i])
+	i++;
+      
+      return i;
+    }
+  }
+  
+  /// Position of type T in the tuple Tp
+  ///
+  /// Returns tuple size if not found
+  template <typename T,
+	    typename Tp>
+  constexpr int posOfType=
+    impl::_posOfType((T*)nullptr,(Tp*)nullptr);
+  
+  /////////////////////////////////////////////////////////////////
+  
+  namespace impl
+  {
+    /// Replace a single type group, by checking if one of the replacements applies
+    template <typename T,
+	      typename...Repl>
+    struct _TupleGroupTypesHelper2
+    {
+      /// All types of the replacement
+      using AllRepl=
+	TupleCat<Repl...>;
+      
+      /// All first match of the replacement
+      using AllKeys=
+	std::tuple<std::tuple_element_t<0,Repl>...>;
+      
+      /// All other matches
+      using AllNonKeys=
+	TupleCat<TupleAllButFirst<Repl>...>;
+      
+      /// Number of non-keys
+      static constexpr int nNonKeys=
+	std::tuple_size_v<AllNonKeys>;
+      
+      /// Is T non-key (not first of a group)
+      static constexpr bool isNonKey=
+	posOfType<T,AllNonKeys>!=nNonKeys;
+      
+      /// Index of the key matching T, if any
+      static constexpr int iKey=
+	posOfType<T,AllKeys>;
+      
+      /// Number of keys
+      static constexpr int nKeys=
+	std::tuple_size_v<AllKeys>;
+      
+      /// Is T key (not first of a group)
+      static constexpr bool isKey=
+	iKey!=nKeys;
+      
+      /// Resulting type
       using type=
-	std::tuple<Tp1...,Tp2...>;
+	std::conditional_t<isNonKey,
+			   std::tuple<>,
+			   std::conditional_t<isKey,
+					      std::tuple<std::tuple_element_t<iKey,std::tuple<Repl...,void>>>,
+					      std::tuple<T>>>;
+    };
+    
+    /// Helper class to group types
+    ///
+    /// Forward declaration
+    template <typename Tp,
+	      typename...F>
+    struct _TupleGroupTypesHelper;
+    
+    /// Helper class to group types
+    template <typename...Tp,
+	      typename...F>
+    struct _TupleGroupTypesHelper<std::tuple<Tp...>,F...>
+    {
+      /// Resuting type
+      using type=
+	TupleCat<typename _TupleGroupTypesHelper2<Tp,F...>::type...>;
     };
   }
   
-  /// Type of the tuple obtained catting two tuples
-  template <typename TP1,
-	    typename TP2>
-  using TupleCat=
-    typename impl::_TupleCat<TP1,TP2>::type;
+  /// Group types in a tuple according to a list of groups
+  ///
+  /// \example
+  ///
+  ///  using A=std::tuple<int,char,int64_t,uint32_t>;
+  ///  using B=std::tuple<char,int64_t>;
+  ///  using C=TupleGroupTypes<A,B>; /// std::tuple<int,std::tuple<char,int64_t>,uint32_t>;
+  template <typename Tp,
+	    typename...F>
+  using TupleGroupTypes=
+    typename impl::_TupleGroupTypesHelper<Tp,F...>::type;
 }
 
 #endif
