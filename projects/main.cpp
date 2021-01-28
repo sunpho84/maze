@@ -285,9 +285,11 @@ void inMain(int narg,char** arg)
   Tensor<TensorComps<Parity>> test;
   Tensor<TensorComps<Parity>> testa;
   test[geometry.parity(0)]=0;
+  testa[geometry.parity(0)]=1;
   
-	LOGGER<<"ANNA2"<<endl;
-  test=testa;
+  LOGGER<<"ANNA2 pre"<<testa[geometry.parity(0)]<<endl;
+  testa=test;
+  LOGGER<<"ANNA2 post"<<testa[geometry.parity(0)]<<endl;
   
   /// Sizes of the block
   const Coords<nDims> nBlockedSitesPerDir=

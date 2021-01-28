@@ -194,7 +194,15 @@ namespace maze
 				  CRASHER<<"Dynamic component "<<nameOfType((C*)nullptr)<<" of lhs has size "<<thisCompSize<<" when rhs has size "<<rhsCompSize<<endl;
 			      });
       
-      CRASHER<<"AAAAA"<<endl;
+      loopOnAllComponentsValues(this->deFeat(),
+				[this,&rhs](auto,const auto&...comps)
+				{
+				  /// Take components in a tule format
+				  const auto c=
+				    make_tuple(comps...);
+				  
+				  this->deFeat()(c)=rhs.deFeat()(c);
+				});
       
       return this->deFeat();
     }
