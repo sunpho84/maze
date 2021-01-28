@@ -37,14 +37,14 @@ namespace maze
   /*! Cannot be achieved with the preprocessor macro, since */		\
   /*! the name of the method is weird */				\
   CUDA_HOST_DEVICE							\
-  operator T&()								\
+  constexpr operator T&()						\
   {									\
     return *static_cast<T*>(this);					\
   }									\
   									\
   /*! Cast to the featuring class */					\
   CUDA_HOST_DEVICE							\
-  const T& deFeat() const						\
+  constexpr const T& deFeat() const					\
   {									\
     return *this;							\
   }									\

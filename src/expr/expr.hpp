@@ -1,8 +1,6 @@
 #ifndef _EXPR_EXPR_HPP
 #define _EXPR_EXPR_HPP
 
-#include "metaProgramming/cudaMacros.hpp"
-#include "unroll/inliner.hpp"
 #ifdef HAVE_CONFIG_H
 # include "config.hpp"
 #endif
@@ -11,11 +9,15 @@
 #include <type_traits>
 
 #include "debug/crasher.hpp"
+#include "debug/typeNamer.hpp"
+#include "metaProgramming/cudaMacros.hpp"
 #include "metaProgramming/nonConstMethod.hpp"
 #include "metaProgramming/tagDispatch.hpp"
 #include "tensors/complex.hpp"
 #include "tensors/component.hpp"
 #include "tensors/componentsList.hpp"
+#include "unroll/forEachInTuple.hpp"
+#include "unroll/inliner.hpp"
 #include "utilities/tuple.hpp"
 
 /// \file expr/expr.hpp
@@ -156,6 +158,54 @@ namespace maze
     PROVIDE_ALSO_NON_CONST_METHOD_GPU(operator());
     
     PROVIDE_ALSO_NON_CONST_METHOD_GPU(operator[]);
+    
+    /////////////////////////////////////////////////////////////////
+    
+    /// Check assignability of rhs into lhs
+    static void assertExprCanBeAssigned()
+    {
+    }
+    
+    /// Assignment operator implementation
+    ///
+    /// Do not call directly: no self-assignemnt check is performed
+    template <typename R,
+	      typename RCs>
+    T& _assign(const Expr<R,RCs>& rhs)
+    {
+      static_assert(T::canBeAssigned,"Trying to assign to a non-assignable expression");
+      
+      /// Dynamic components of THIS
+      using DynTCs=
+	GetDynamicCompsOfTensorComps<ExpTCs>;
+      
+      forEachInTuple(DynTCs(),[this,&rhs](const auto& t) -> void
+			      {
+				/// Component under analysis
+				using C=std::decay_t<decltype(t)>;
+				
+				const auto thisCompSize=
+				  rhs.deFeat().template compSize<C>();
+				
+				const auto rhsCompSize=
+				  this->deFeat().template compSize<C>();
+				
+				if(thisCompSize!=rhsCompSize)
+				  CRASHER<<"Dynamic component "<<nameOfType((C*)nullptr)<<" of lhs has size "<<thisCompSize<<" when rhs has size "<<rhsCompSize<<endl;
+			      });
+      
+      CRASHER<<"AAAAA"<<endl;
+      
+      return this->deFeat();
+    }
+    
+    /// Provides the assignment operator=, to be imported
+    template <typename R,
+	      typename RCs>
+    T& operator=(const Expr<R,RCs>& rhs)
+    {
+      return this->_assign(rhs);
+    }
   };
 }
 

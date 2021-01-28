@@ -1,6 +1,7 @@
 #ifndef _TENSOR_HPP
 #define _TENSOR_HPP
 
+#include "base/logger.hpp"
 #include "metaProgramming/nonConstMethod.hpp"
 #include "tensors/component.hpp"
 #include <type_traits>
@@ -37,9 +38,6 @@ namespace maze
     ComplexSubscribe<THIS>,
     TensorFeat<THIS>
   {
-    // /// Import assign operator from expression
-    // using Expr<THIS>::operator=;
-    
     // INLINE_FUNCTION CUDA_HOST_DEVICE
     // decltype(auto) operator=(const THIS& oth)
     // {
@@ -74,6 +72,19 @@ namespace maze
     template <int I>
     using Comp=
       std::tuple_element_t<I,Comps>;
+    
+    /// Import assign operator from expression
+    using Expr<THIS,Comps>::operator=;
+    
+    /// Copy assignment
+    Tensor& operator=(const Tensor& oth)
+    {
+      // Check against self-assignement
+      if(this!=&oth)
+	return this->_assign(oth);
+      
+      return *this;
+    }
     
     /// Determine whether this can be simdfified
     template <typename _Fund=Fund,
