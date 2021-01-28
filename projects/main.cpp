@@ -251,15 +251,6 @@ DECLARE_COMPONENT(BlockedEosSite,int64_t,DYNAMIC,blockedEosSite);
 
 void inMain(int narg,char** arg)
 {
-  using A=std::tuple<int,char,int64_t,uint32_t,uint64_t>;
-  using B=std::tuple<char, int64_t>;
-  using C=std::tuple<uint32_t,uint64_t>;
-  
-  using D=TupleGroupTypes<A,B,C>;
-  D& d=1;
-  //int& i=
-    //std::get<std::tuple<char,int64_t>>(d);
-  
   /// Number of dimensions
   static constexpr int nDims=4;
   
@@ -292,7 +283,11 @@ void inMain(int narg,char** arg)
   
   
   Tensor<TensorComps<Parity>> test;
+  Tensor<TensorComps<Parity>> testa;
   test[geometry.parity(0)]=0;
+  
+	LOGGER<<"ANNA2"<<endl;
+  test=testa;
   
   /// Sizes of the block
   const Coords<nDims> nBlockedSitesPerDir=
