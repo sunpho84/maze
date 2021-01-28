@@ -47,7 +47,7 @@ namespace maze
       /// The attribute avoids compiler warning.
       [[ maybe_unused ]]
 	auto list=
-	{tupleCall(std::forward<F>(f),std::get<Is>(tp))...};
+	{tupleCall(std::forward<F>(f),std::get<Is>(tp))...,0};
     }
   }
   
